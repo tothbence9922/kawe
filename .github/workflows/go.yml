@@ -26,7 +26,7 @@ jobs:
         go-version: 1.17
 
     - name: Go mod init
-      run: go mod init
+      run: go mod init kawe/m
     
     - name: Build
       run: go build -v ./...
