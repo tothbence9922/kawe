@@ -6,6 +6,8 @@ WORKDIR /app
 
 COPY go.mod ./
 COPY go.sum ./
+# Based on https://github.com/golang/go/issues/31997
+RUN go env -w GO111MODULE=auto
 RUN go mod download
 
 COPY *.go ./
