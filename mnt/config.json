@@ -1,0 +1,12 @@
+{
+    "pingConfigs": [
+        {
+            "periodicity": 5,
+            "target": "google.com:443"
+        },
+        {
+            "periodicity": 10,
+            "target": "youtube.com:443"
+        }
+    ]
+}
