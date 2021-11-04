@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/tothbence9922/kawe/kawe/internal/configuration"
-	"github.com/tothbence9922/kawe/kawe/internal/ping"
+	"github.com/tothbence9922/kawe/internal/configuration"
+	simple "github.com/tothbence9922/kawe/internal/ping/simple/service"
 )
 
 func main() {
@@ -14,7 +14,7 @@ func main() {
 	samplePingConfigs := make([]configuration.PingConfiguration, 1)
 	samplePingConfigs[0] = samplePingConfig
 
-	sampleService := new(ping.SimplePingerService)
+	sampleService := new(simple.SimplePingerService)
 
 	sampleService.Configure()
 

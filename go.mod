@@ -1,3 +1,3 @@
-module github.com/tothbence9922/kawe/kawe
+module github.com/tothbence9922/kawe
 
 go 1.17
