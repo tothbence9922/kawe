@@ -31,23 +31,23 @@ func (sps *SimplePingerService) Configure(config configuration.ServiceConfigurat
 
 }
 
-func StartMethod(currentMethod simpleMethod.PingerMethod) {
-
+func StartMethod(wg sync.WaitGroup, method simpleMethod.PingerMethod) {
+	go func(method simpleMethod.PingerMethod) {
+		defer wg.Done()
+		for true {
+			pingResponse, error := method.Ping()
+			if error == nil && pingResponse != (simpleResponse.SimplePingResponse{}) {
+				fmt.Printf("%s\n", pingResponse.String())
+			}
+			time.Sleep(time.Second * time.Duration(method.GetPeriodicity()))
+		}
+	}(method)
 }
 
 func (sps *SimplePingerService) StartMethods(wg sync.WaitGroup) {
 
 	for _, method := range sps.methods {
-		go func(currentMethod simpleMethod.PingerMethod) {
-			defer wg.Done()
-			for true {
-				pingResponse, error := currentMethod.Ping()
-				if error == nil && pingResponse != (simpleResponse.SimplePingResponse{}) {
-					fmt.Printf("%s\n", pingResponse.String())
-				}
-				time.Sleep(time.Second * time.Duration(currentMethod.GetPeriodicity()))
-			}
-		}(method)
+		StartMethod(wg, method)
 	}
 
 }

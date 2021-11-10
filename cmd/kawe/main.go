@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/tothbence9922/kawe/internal/configuration"
@@ -17,7 +16,6 @@ func startServices() {
 	for _, serviceConfig := range configuration.GetInstance().ServiceConfigs {
 		wg.Add(1)
 
-		fmt.Println("ASd")
 		sampleService := new(simple.SimplePingerService)
 
 		sampleService.Configure(serviceConfig)
