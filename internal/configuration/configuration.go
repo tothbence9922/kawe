@@ -6,27 +6,14 @@ import (
 	"os"
 )
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
-func (cfg *Configuration) GetConfiguration() { // read config from json in
-	pwd, _ := os.Getwd()
-	dat, err := os.ReadFile(pwd + "/mnt/config.json")
-	check(err)
-
-	json.Unmarshal([]byte(dat), &cfg)
-	for _, config := range cfg.ServiceConfigs {
-		fmt.Print(config.String())
-	}
-	//fmt.Print(string(dat))
+type Configuration struct {
+	ServiceConfigs []ServiceConfiguration
 }
 
 var configInstance *Configuration
 
 func GetInstance() *Configuration {
+
 	if configInstance == nil {
 		configInstance = new(Configuration)
 		configInstance.GetConfiguration()
@@ -34,12 +21,38 @@ func GetInstance() *Configuration {
 	return configInstance
 }
 
+func (cfg *Configuration) GetConfiguration() {
+
+	pwd, _ := os.Getwd()
+	dat, err := os.ReadFile(pwd + "/mnt/config.json")
+	check(err)
+
+	json.Unmarshal([]byte(dat), &cfg)
+}
+
+func (c Configuration) String() string {
+
+	var ret string
+
+	for _, curSvcConfig := range c.ServiceConfigs {
+		ret = ret + curSvcConfig.String()
+	}
+
+	return ret
+}
+
 type ServiceConfiguration struct {
 	Name        string
 	PingConfigs []PingConfiguration
 }
-type Configuration struct {
-	ServiceConfigs []ServiceConfiguration
+
+func (sc ServiceConfiguration) String() string {
+
+	ret := ""
+	for _, curPingConfig := range sc.PingConfigs {
+		ret += curPingConfig.String()
+	}
+	return ret
 }
 
 type PingConfiguration struct {
@@ -49,24 +62,13 @@ type PingConfiguration struct {
 }
 
 func (pc PingConfiguration) String() string {
+
 	return fmt.Sprintf("periodicity\t\ttarget\n%d\t\t%s\n", pc.Periodicity, pc.Target)
 }
 
-func (sc ServiceConfiguration) String() string {
-	ret := ""
-	for _, curPingConfig := range sc.PingConfigs {
-		ret += curPingConfig.String()
+func check(e error) {
+
+	if e != nil {
+		panic(e)
 	}
-	return ret
-}
-
-func (c Configuration) String() string {
-	var ret string
-
-	for _, curSvcConfig := range c.ServiceConfigs {
-		ret = ret + curSvcConfig.String()
-	}
-
-	return ret
-
 }

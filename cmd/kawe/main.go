@@ -27,5 +27,4 @@ func startServices() {
 func main() {
 
 	startServices()
-
 }

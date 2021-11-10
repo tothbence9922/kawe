@@ -15,6 +15,7 @@ type SimplePingerService struct {
 }
 
 func (sps SimplePingerService) String() string {
+
 	var ret string
 
 	for _, method := range sps.methods {
@@ -32,12 +33,13 @@ func (sps *SimplePingerService) Configure(config configuration.ServiceConfigurat
 }
 
 func StartMethod(wg sync.WaitGroup, method simpleMethod.PingerMethod) {
+
 	go func(method simpleMethod.PingerMethod) {
 		defer wg.Done()
 		for true {
 			pingResponse, error := method.Ping()
 			if error == nil && pingResponse != (simpleResponse.SimplePingResponse{}) {
-				fmt.Printf("%s\n", pingResponse.String())
+				fmt.Printf("%s\n", pingResponse.Json())
 			}
 			time.Sleep(time.Second * time.Duration(method.GetPeriodicity()))
 		}
