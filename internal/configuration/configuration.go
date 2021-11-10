@@ -35,6 +35,7 @@ func GetInstance() *Configuration {
 }
 
 type ServiceConfiguration struct {
+	Name        string
 	PingConfigs []PingConfiguration
 }
 type Configuration struct {

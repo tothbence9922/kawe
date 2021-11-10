@@ -1,5 +1,5 @@
 {
-    "services": [
+    "serviceConfigs": [
         {
             "name": "google_ping_service",
             "pingConfigs": [

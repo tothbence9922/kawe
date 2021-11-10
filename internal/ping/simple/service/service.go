@@ -35,11 +35,9 @@ func StartMethod(currentMethod simpleMethod.PingerMethod) {
 
 }
 
-func (sps *SimplePingerService) StartMethods() {
-	var wg sync.WaitGroup
+func (sps *SimplePingerService) StartMethods(wg sync.WaitGroup) {
 
 	for _, method := range sps.methods {
-		wg.Add(1)
 		go func(currentMethod simpleMethod.PingerMethod) {
 			defer wg.Done()
 			for true {
@@ -51,5 +49,5 @@ func (sps *SimplePingerService) StartMethods() {
 			}
 		}(method)
 	}
-	wg.Wait()
+
 }

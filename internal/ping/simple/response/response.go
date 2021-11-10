@@ -1,18 +1,28 @@
 package simple
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"time"
+)
 
 type SimplePingResponse struct {
-	Success bool
-	Error   string
+	Success   bool
+	Error     string
+	Target    string
+	Timestamp time.Time
 }
 
 func (spr SimplePingResponse) String() string {
-	successText := "successful"
+	successText := "Successful"
 	errorText := ""
 	if !spr.Success {
-		successText = "failed"
+		successText = "Failed"
 		errorText = spr.Error
 	}
-	return fmt.Sprintf("SimplePing %s.\t\t%s\n", successText, errorText)
+	return fmt.Sprintf("%s\tSimplePing\t->\t%s\t\t%s.\t%s\n", spr.Timestamp.Format("2 Jan 2006 15:04:05"), spr.Target, successText, errorText)
+}
+func (spr SimplePingResponse) Json() string {
+	jsonString, _ := json.Marshal(spr)
+	return string(jsonString)
 }

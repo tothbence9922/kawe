@@ -25,7 +25,7 @@ func (spm SimplePingerMethod) GetPeriodicity() (Periodicity int) {
 }
 
 func (spm SimplePingerMethod) Ping() (simple.PingResponse, error) {
-	ret := simple.SimplePingResponse{}
+	ret := simple.SimplePingResponse{Target: spm.Target}
 	if len(spm.Method) == 0 {
 		return ret, errors.New("No applicable network options given.")
 	} else if spm.Target == "" {
@@ -35,6 +35,7 @@ func (spm SimplePingerMethod) Ping() (simple.PingResponse, error) {
 	if spm.Timeout > 0 {
 		conn, err := net.DialTimeout(spm.Method, spm.Target, time.Duration(duration))
 
+		ret.Timestamp = time.Now()
 		ret.Success = (conn != nil)
 
 		if conn != nil {
@@ -49,6 +50,7 @@ func (spm SimplePingerMethod) Ping() (simple.PingResponse, error) {
 	} else {
 		conn, err := net.Dial(spm.Method, spm.Target)
 
+		ret.Timestamp = time.Now()
 		ret.Success = (conn != nil)
 
 		if conn != nil {
