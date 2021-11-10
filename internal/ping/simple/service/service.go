@@ -23,10 +23,12 @@ func (sps SimplePingerService) String() string {
 	return ret
 }
 
-func (sps *SimplePingerService) Configure() {
-	for _, pingConfig := range configuration.GetInstance().PingConfigs {
+func (sps *SimplePingerService) Configure(config configuration.ServiceConfiguration) {
+
+	for _, pingConfig := range config.PingConfigs {
 		sps.methods = append(sps.methods, simpleMethod.SimplePingerMethod{Target: pingConfig.Target, Timeout: 5000, Method: "tcp", Periodicity: pingConfig.Periodicity})
 	}
+
 }
 
 func StartMethod(currentMethod simpleMethod.PingerMethod) {

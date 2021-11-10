@@ -6,40 +6,39 @@ import (
 	"os"
 )
 
-type Configuration2 interface {
-	GetConfiguration()
-}
-
-type configuration struct {
-	PingConfigs []PingConfiguration
-}
-
 func check(e error) {
 	if e != nil {
 		panic(e)
 	}
 }
 
-func (cfg *configuration) GetConfiguration() { // read config from json in
+func (cfg *Configuration) GetConfiguration() { // read config from json in
 	pwd, _ := os.Getwd()
 	dat, err := os.ReadFile(pwd + "/mnt/config.json")
 	check(err)
 
 	json.Unmarshal([]byte(dat), &cfg)
-	for _, config := range cfg.PingConfigs {
+	for _, config := range cfg.ServiceConfigs {
 		fmt.Print(config.String())
 	}
 	//fmt.Print(string(dat))
 }
 
-var configInstance *configuration
+var configInstance *Configuration
 
-func GetInstance() *configuration {
+func GetInstance() *Configuration {
 	if configInstance == nil {
-		configInstance = new(configuration)
+		configInstance = new(Configuration)
 		configInstance.GetConfiguration()
 	}
 	return configInstance
+}
+
+type ServiceConfiguration struct {
+	PingConfigs []PingConfiguration
+}
+type Configuration struct {
+	ServiceConfigs []ServiceConfiguration
 }
 
 type PingConfiguration struct {
@@ -52,11 +51,19 @@ func (pc PingConfiguration) String() string {
 	return fmt.Sprintf("periodicity\t\ttarget\n%d\t\t%s\n", pc.Periodicity, pc.Target)
 }
 
-func (c configuration) String() string {
+func (sc ServiceConfiguration) String() string {
+	ret := ""
+	for _, curPingConfig := range sc.PingConfigs {
+		ret += curPingConfig.String()
+	}
+	return ret
+}
+
+func (c Configuration) String() string {
 	var ret string
 
-	for _, curPingConfig := range c.PingConfigs {
-		ret = ret + curPingConfig.String()
+	for _, curSvcConfig := range c.ServiceConfigs {
+		ret = ret + curSvcConfig.String()
 	}
 
 	return ret

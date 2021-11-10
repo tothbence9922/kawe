@@ -1,12 +1,22 @@
 {
-    "pingConfigs": [
+    "services": [
         {
-            "periodicity": 5,
-            "target": "google.com:443"
+            "name": "google_ping_service",
+            "pingConfigs": [
+                {
+                    "periodicity": 5,
+                    "target": "google.com:443"
+                }
+            ]
         },
         {
-            "periodicity": 10,
-            "target": "youtube.com:443"
+            "name": "youtube_ping_service",
+            "pingConfigs": [
+                {
+                    "periodicity": 10,
+                    "target": "youtube.com:443"
+                }
+            ]
         }
     ]
 }
