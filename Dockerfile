@@ -11,7 +11,7 @@ RUN go env -w GO111MODULE=auto
 RUN go mod download
 
 COPY * ./
-
+RUN go get github.com/tothbence9922/kawe/internal/ping/simple/service
 RUN go build /app/kawe/... -o /bin/main
 
 EXPOSE 8080
