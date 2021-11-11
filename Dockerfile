@@ -12,7 +12,7 @@ RUN go mod download
 
 COPY * ./
 
-RUN go build /cmd/kawe -o /bin/main
+RUN go build ./cmd/kawe -o /bin/main
 
 EXPOSE 8080
 
