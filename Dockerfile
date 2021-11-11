@@ -11,9 +11,8 @@ RUN go env -w GO111MODULE=auto
 RUN go mod download
 
 COPY * ./
-RUN yum install tree -y
-RUN tree /app -L 4
-RUN go build ./kawe/cmd/kawe -o /bin/main
+
+RUN go build /app/kawe/... -o /bin/main
 
 EXPOSE 8080
 
