@@ -10,7 +10,7 @@ COPY go.mod ./
 RUN go env -w GO111MODULE=auto
 RUN go mod download
 
-COPY *.go ./
+COPY * ./
 
 RUN go build -o /bin/main
 
