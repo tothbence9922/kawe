@@ -41,6 +41,8 @@ jobs:
     - name: Build and push
       id: docker_build
       uses: docker/build-push-action@v2
+      env:
+        GO111MODULE: "off"
       with:
         context: ./
         file: ./Dockerfile
