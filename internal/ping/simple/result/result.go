@@ -12,10 +12,21 @@ type SimplePingResult struct {
 	ServiceName string
 }
 
+func (spr SimplePingResult) GetResponse() simple.PingResponse {
+
+	return spr.Response
+}
+
+func (spr SimplePingResult) GetServiceName() string {
+
+	return spr.ServiceName
+}
+
 func (spr SimplePingResult) String() string {
 
 	return fmt.Sprintf("%s\t%s", spr.ServiceName, spr.Response.String())
 }
+
 func (spr SimplePingResult) Json() string {
 
 	jsonString, _ := json.Marshal(spr)

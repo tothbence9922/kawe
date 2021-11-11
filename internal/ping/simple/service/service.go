@@ -1,9 +1,11 @@
 package simple
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
+	"github.com/tothbence9922/kawe/internal/aggregator"
 	"github.com/tothbence9922/kawe/internal/configuration"
 	simpleMethod "github.com/tothbence9922/kawe/internal/ping/simple/method"
 	simpleResult "github.com/tothbence9922/kawe/internal/ping/simple/result"
@@ -33,7 +35,7 @@ func (sps *SimplePingerService) Configure(config configuration.ServiceConfigurat
 	}
 }
 
-func (sps *SimplePingerService) StartMethod(wg sync.WaitGroup, method simpleMethod.PingerMethod) {
+func (sps *SimplePingerService) StartMethod(wg *sync.WaitGroup, method simpleMethod.PingerMethod) {
 
 	go func(method simpleMethod.PingerMethod, outChannel chan<- (simpleResult.PingResult)) {
 		defer wg.Done()
@@ -47,9 +49,24 @@ func (sps *SimplePingerService) StartMethod(wg sync.WaitGroup, method simpleMeth
 	}(method, sps.Channel)
 }
 
-func (sps *SimplePingerService) StartMethods(wg sync.WaitGroup) {
+func (sps *SimplePingerService) StartMethods(wg *sync.WaitGroup) {
 
 	for _, method := range sps.methods {
 		sps.StartMethod(wg, method)
 	}
+}
+
+func Start(wg *sync.WaitGroup) {
+
+	commonChannel := aggregator.GetInstance().Channel
+
+	for _, serviceConfig := range configuration.GetInstance().ServiceConfigs {
+		wg.Add(1)
+
+		sampleService := new(SimplePingerService)
+
+		sampleService.Configure(serviceConfig, commonChannel)
+		sampleService.StartMethods(wg)
+	}
+	fmt.Println("Services started")
 }
