@@ -11,9 +11,7 @@ RUN go env -w GO111MODULE=auto
 RUN go mod download
 
 COPY * ./
-RUN pwd
-RUN ls -la
-RUN go build ./cmd/kawe -o /bin/main
+RUN go build ./kawe/cmd/kawe -o /bin/main
 
 EXPOSE 8080
 
