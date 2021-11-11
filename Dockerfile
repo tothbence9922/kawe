@@ -10,10 +10,10 @@ COPY go.mod ./
 RUN go env -w GO111MODULE=auto
 RUN go mod download
 
-COPY * ./
+COPY . .
 RUN ls -la
 
-RUN go build /app/kawe/cmd/kawe/main.go -o /bin/main
+RUN go build ./kawe/cmd/kawe/main.go -o /bin/main
 
 EXPOSE 8080
 
