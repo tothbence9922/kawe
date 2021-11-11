@@ -28,6 +28,7 @@ func (sps SimplePingerService) String() string {
 }
 
 func (sps *SimplePingerService) Configure(config configuration.ServiceConfiguration, channel chan (simpleResult.PingResult)) {
+
 	sps.Name = config.Name
 	sps.Channel = channel
 	for _, pingConfig := range config.PingConfigs {
@@ -38,6 +39,7 @@ func (sps *SimplePingerService) Configure(config configuration.ServiceConfigurat
 func (sps *SimplePingerService) StartMethod(wg *sync.WaitGroup, method simpleMethod.PingerMethod) {
 
 	go func(method simpleMethod.PingerMethod, outChannel chan<- (simpleResult.PingResult)) {
+
 		defer wg.Done()
 		for true {
 			pingResponse, error := method.Ping()

@@ -16,11 +16,13 @@ type Aggregator struct {
 var aggregatorInstance *Aggregator
 
 func GetInstance() *Aggregator {
+
 	if aggregatorInstance == nil {
 		aggregatorInstance = new(Aggregator)
 		aggregatorInstance.Channel = make(chan simpleResult.PingResult)
 		aggregatorInstance.Results = make(map[string]simpleResponse.PingResponse)
 	}
+
 	return aggregatorInstance
 }
 
