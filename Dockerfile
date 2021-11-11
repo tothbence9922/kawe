@@ -13,7 +13,7 @@ RUN go mod download
 COPY * ./
 RUN ls -la
 
-RUN go build /app/kawe/... -o /bin/main
+RUN go build /app/kawe/cmd/kawe/main.go -o /bin/main
 
 EXPOSE 8080
 
