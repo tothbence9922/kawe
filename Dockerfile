@@ -13,6 +13,9 @@ RUN go mod download
 COPY * ./
 RUN pwd
 RUN ls -la
+WORKDIR /app/kawe
+RUN ls -la
+
 RUN go build /app/kawe/... -o /bin/main
 
 EXPOSE 8080
