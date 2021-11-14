@@ -14,7 +14,7 @@ type HttpServer struct {
 }
 
 func api(w http.ResponseWriter, req *http.Request) {
-	outJson, _ := json.Marshal(aggregator.GetInstance().Results) // Printing the state for debug...
+	outJson, _ := json.Marshal(aggregator.GetInstance().Results)
 	fmt.Fprintf(w, string(outJson))
 }
 
@@ -24,10 +24,7 @@ func (hs HttpServer) Serve(wg *sync.WaitGroup) {
 		defer wg.Done()
 		http.HandleFunc("/api", api)
 
-		portString := ""
-
-		portString = fmt.Sprintf(portString, ":%d", hs.Port)
-
+		portString := fmt.Sprintf(":%d", hs.Port)
 		http.ListenAndServe(portString, nil)
 	}()
 	fmt.Println("HTTP Server started")
