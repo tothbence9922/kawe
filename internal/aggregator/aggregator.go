@@ -1,7 +1,6 @@
 package aggregator
 
 import (
-	"encoding/json"
 	"fmt"
 	"sync"
 
@@ -42,8 +41,8 @@ func Start(wg *sync.WaitGroup) {
 			newResult := <-inChannel
 			GetInstance().Results[newResult.GetServiceName()] = newResult
 
-			outJson, _ := json.Marshal(GetInstance().Results) // Printing the state for debug...
-			fmt.Println(string(outJson))
+			//outJson, _ := json.Marshal(GetInstance().Results) // Printing the state for debug...
+			//fmt.Println(string(outJson))
 		}
 	}(GetInstance().Channel)
 	fmt.Println("Aggregator started")
