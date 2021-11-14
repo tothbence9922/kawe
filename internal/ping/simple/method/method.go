@@ -16,6 +16,10 @@ type SimplePingerMethod struct {
 	Periodicity int
 }
 
+func (spm SimplePingerMethod) GetTarget() string {
+	return spm.Target
+}
+
 func (spm SimplePingerMethod) String() string {
 
 	return fmt.Sprintf("Target\t\tMethod\t\tTimeout\t\tPeriodicity\n%s\t\t%s\t\t%d\t\t%d\n", spm.Target, spm.Method, spm.Timeout, spm.Periodicity)

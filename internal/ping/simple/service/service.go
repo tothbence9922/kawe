@@ -8,6 +8,7 @@ import (
 	"github.com/tothbence9922/kawe/internal/aggregator"
 	"github.com/tothbence9922/kawe/internal/configuration"
 	simpleMethod "github.com/tothbence9922/kawe/internal/ping/simple/method"
+	simpleResponse "github.com/tothbence9922/kawe/internal/ping/simple/response"
 	simpleResult "github.com/tothbence9922/kawe/internal/ping/simple/result"
 )
 
@@ -15,6 +16,7 @@ type SimplePingerService struct {
 	methods []simpleMethod.PingerMethod
 	Name    string
 	Channel chan (simpleResult.PingResult)
+	Result  simpleResult.PingResult
 }
 
 func (sps SimplePingerService) String() string {
@@ -31,6 +33,7 @@ func (sps *SimplePingerService) Configure(config configuration.ServiceConfigurat
 
 	sps.Name = config.Name
 	sps.Channel = channel
+	sps.Result = simpleResult.SimplePingResult{ServiceName: sps.Name, Responses: make(map[string](simpleResponse.PingResponse))}
 	for _, pingConfig := range config.PingConfigs {
 		sps.methods = append(sps.methods, simpleMethod.SimplePingerMethod{Target: pingConfig.Target, Timeout: 5000, Method: "tcp", Periodicity: pingConfig.Periodicity})
 	}
@@ -44,7 +47,8 @@ func (sps *SimplePingerService) StartMethod(wg *sync.WaitGroup, method simpleMet
 		for true {
 			pingResponse, error := method.Ping()
 			if error == nil {
-				outChannel <- simpleResult.SimplePingResult{ServiceName: sps.Name, Response: pingResponse}
+				sps.Result.GetResponses()[pingResponse.GetTarget()] = pingResponse
+				outChannel <- sps.Result
 			}
 			time.Sleep(time.Second * time.Duration(method.GetPeriodicity()))
 		}

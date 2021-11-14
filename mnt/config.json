@@ -15,6 +15,10 @@
                 {
                     "periodicity": 10,
                     "target": "youtube.com:443"
+                },
+                {
+                    "periodicity": 5,
+                    "target": "google.com:443"
                 }
             ]
         }

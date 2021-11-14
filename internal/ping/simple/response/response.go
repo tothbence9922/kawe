@@ -13,6 +13,10 @@ type SimplePingResponse struct {
 	Timestamp time.Time
 }
 
+func (spr SimplePingResponse) GetTarget() string {
+	return spr.Target
+}
+
 func (spr SimplePingResponse) String() string {
 
 	successText := "Successful"
