@@ -6,5 +6,5 @@ type PingResult interface {
 	String() string
 	Json() string
 	GetServiceName() string
-	GetResponse() simple.PingResponse
+	GetResponses() map[string](simple.PingResponse)
 }

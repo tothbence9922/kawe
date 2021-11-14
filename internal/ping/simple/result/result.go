@@ -8,13 +8,13 @@ import (
 )
 
 type SimplePingResult struct {
-	Response    simple.PingResponse
+	Responses   map[string](simple.PingResponse)
 	ServiceName string
 }
 
-func (spr SimplePingResult) GetResponse() simple.PingResponse {
+func (spr SimplePingResult) GetResponses() map[string](simple.PingResponse) {
 
-	return spr.Response
+	return spr.Responses
 }
 
 func (spr SimplePingResult) GetServiceName() string {
@@ -24,7 +24,13 @@ func (spr SimplePingResult) GetServiceName() string {
 
 func (spr SimplePingResult) String() string {
 
-	return fmt.Sprintf("%s\t%s", spr.ServiceName, spr.Response.String())
+	ret := ""
+
+	for _, value := range spr.Responses {
+		ret += value.String() + "\n"
+	}
+
+	return fmt.Sprintf("%s\t%s", spr.ServiceName, ret)
 }
 
 func (spr SimplePingResult) Json() string {

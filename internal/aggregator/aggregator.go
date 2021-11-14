@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"sync"
 
-	simpleResponse "github.com/tothbence9922/kawe/internal/ping/simple/response"
 	simpleResult "github.com/tothbence9922/kawe/internal/ping/simple/result"
 )
 
 type Aggregator struct {
 	Channel chan (simpleResult.PingResult)
-	Results map[string](simpleResponse.PingResponse)
+	Results map[string](simpleResult.PingResult)
 }
 
 var aggregatorInstance *Aggregator
@@ -20,13 +19,13 @@ func GetInstance() *Aggregator {
 	if aggregatorInstance == nil {
 		aggregatorInstance = new(Aggregator)
 		aggregatorInstance.Channel = make(chan simpleResult.PingResult)
-		aggregatorInstance.Results = make(map[string]simpleResponse.PingResponse)
+		aggregatorInstance.Results = make(map[string](simpleResult.PingResult))
 	}
 
 	return aggregatorInstance
 }
 
-func (a Aggregator) GetResults() map[string](simpleResponse.PingResponse) {
+func (a Aggregator) GetResults() map[string](simpleResult.PingResult) {
 
 	return a.Results
 }
@@ -39,9 +38,11 @@ func Start(wg *sync.WaitGroup) {
 
 		for true {
 			// Handling incoming data, setting the "state"
-			output := <-inChannel
-			GetInstance().Results[output.GetServiceName()] = output.GetResponse()
-			fmt.Println(GetInstance().Results)
+			newResult := <-inChannel
+			GetInstance().Results[newResult.GetServiceName()] = newResult
+
+			//outJson, _ := json.Marshal(GetInstance().Results) // Printing the state for debug...
+			//fmt.Println(string(outJson))
 		}
 	}(GetInstance().Channel)
 	fmt.Println("Aggregator started")
