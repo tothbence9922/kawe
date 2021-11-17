@@ -1,6 +1,6 @@
 package simple
 
-type PingerService interface {
+type IPingService interface {
 	String() string
 	configure()
 	startMethods()

@@ -3,26 +3,28 @@ package simple
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 
-	simple "github.com/tothbence9922/kawe/internal/ping/simple/response"
+	interfaces "github.com/tothbence9922/kawe/internal/ping/interfaces"
 )
 
 type SimplePingResult struct {
-	Responses   map[string](simple.PingResponse)
+	sync.Mutex
+	Responses   map[string](interfaces.IPingResponse)
 	ServiceName string
 }
 
-func (spr SimplePingResult) GetResponses() map[string](simple.PingResponse) {
+func (spr *SimplePingResult) GetResponses() map[string](interfaces.IPingResponse) {
 
 	return spr.Responses
 }
 
-func (spr SimplePingResult) GetServiceName() string {
+func (spr *SimplePingResult) GetServiceName() string {
 
 	return spr.ServiceName
 }
 
-func (spr SimplePingResult) String() string {
+func (spr *SimplePingResult) String() string {
 
 	ret := ""
 
@@ -33,7 +35,7 @@ func (spr SimplePingResult) String() string {
 	return fmt.Sprintf("%s\t%s", spr.ServiceName, ret)
 }
 
-func (spr SimplePingResult) Json() string {
+func (spr *SimplePingResult) Json() string {
 
 	jsonString, _ := json.Marshal(spr)
 	return string(jsonString)

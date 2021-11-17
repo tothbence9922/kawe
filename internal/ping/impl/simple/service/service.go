@@ -7,16 +7,17 @@ import (
 
 	"github.com/tothbence9922/kawe/internal/aggregator"
 	"github.com/tothbence9922/kawe/internal/configuration"
-	simpleMethod "github.com/tothbence9922/kawe/internal/ping/simple/method"
-	simpleResponse "github.com/tothbence9922/kawe/internal/ping/simple/response"
-	simpleResult "github.com/tothbence9922/kawe/internal/ping/simple/result"
+	interfaces "github.com/tothbence9922/kawe/internal/ping/interfaces"
+
+	simpleMethod "github.com/tothbence9922/kawe/internal/ping/impl/simple/method"
+	simpleResult "github.com/tothbence9922/kawe/internal/ping/impl/simple/result"
 )
 
 type SimplePingerService struct {
-	methods []simpleMethod.PingerMethod
+	methods []interfaces.IPingMethod
 	Name    string
-	Channel chan (simpleResult.PingResult)
-	Result  simpleResult.PingResult
+	Channel chan (interfaces.IPingResult)
+	Result  interfaces.IPingResult
 }
 
 func (sps SimplePingerService) String() string {
@@ -29,19 +30,19 @@ func (sps SimplePingerService) String() string {
 	return ret
 }
 
-func (sps *SimplePingerService) Configure(config configuration.ServiceConfiguration, channel chan (simpleResult.PingResult)) {
+func (sps *SimplePingerService) Configure(config configuration.ServiceConfiguration, channel chan (interfaces.IPingResult)) {
 
 	sps.Name = config.Name
 	sps.Channel = channel
-	sps.Result = simpleResult.SimplePingResult{ServiceName: sps.Name, Responses: make(map[string](simpleResponse.PingResponse))}
+	sps.Result = &simpleResult.SimplePingResult{ServiceName: sps.Name, Responses: make(map[string](interfaces.IPingResponse))}
 	for _, pingConfig := range config.PingConfigs {
 		sps.methods = append(sps.methods, simpleMethod.SimplePingerMethod{Target: pingConfig.Target, Timeout: 5000, Method: "tcp", Periodicity: pingConfig.Periodicity})
 	}
 }
 
-func (sps *SimplePingerService) StartMethod(wg *sync.WaitGroup, method simpleMethod.PingerMethod) {
+func (sps *SimplePingerService) StartMethod(wg *sync.WaitGroup, method interfaces.IPingMethod) {
 
-	go func(method simpleMethod.PingerMethod, outChannel chan<- (simpleResult.PingResult)) {
+	go func(method interfaces.IPingMethod, outChannel chan<- (interfaces.IPingResult)) {
 
 		defer wg.Done()
 		for true {

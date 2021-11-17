@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"sync"
 
-	simpleResult "github.com/tothbence9922/kawe/internal/ping/simple/result"
+	interfaces "github.com/tothbence9922/kawe/internal/ping/interfaces"
 )
 
 type Aggregator struct {
-	Channel chan (simpleResult.PingResult)
-	Results map[string](simpleResult.PingResult)
+	sync.Mutex
+	Channel chan (interfaces.IPingResult)
+	Results map[string](interfaces.IPingResult)
 }
 
 var aggregatorInstance *Aggregator
@@ -18,14 +19,14 @@ func GetInstance() *Aggregator {
 
 	if aggregatorInstance == nil {
 		aggregatorInstance = new(Aggregator)
-		aggregatorInstance.Channel = make(chan simpleResult.PingResult)
-		aggregatorInstance.Results = make(map[string](simpleResult.PingResult))
+		aggregatorInstance.Channel = make(chan interfaces.IPingResult)
+		aggregatorInstance.Results = make(map[string](interfaces.IPingResult))
 	}
 
 	return aggregatorInstance
 }
 
-func (a Aggregator) GetResults() map[string](simpleResult.PingResult) {
+func (a *Aggregator) GetResults() map[string](interfaces.IPingResult) {
 
 	return a.Results
 }
@@ -33,7 +34,7 @@ func (a Aggregator) GetResults() map[string](simpleResult.PingResult) {
 func Start(wg *sync.WaitGroup) {
 
 	wg.Add(1)
-	go func(inChannel <-chan (simpleResult.PingResult)) {
+	go func(inChannel <-chan (interfaces.IPingResult)) {
 		defer wg.Done()
 
 		for true {

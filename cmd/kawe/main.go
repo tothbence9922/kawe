@@ -4,8 +4,8 @@ import (
 	"sync"
 
 	aggregator "github.com/tothbence9922/kawe/internal/aggregator"
-	service "github.com/tothbence9922/kawe/internal/ping/simple/service"
-	"github.com/tothbence9922/kawe/internal/server"
+	simpleService "github.com/tothbence9922/kawe/internal/ping/impl/simple/service"
+	server "github.com/tothbence9922/kawe/internal/server"
 )
 
 var (
@@ -16,10 +16,10 @@ func main() {
 	wgPtr := &wg
 
 	aggregator.Start(wgPtr)
-	service.Start(wgPtr)
+
+	simpleService.Start(wgPtr)
 
 	httpServer := server.HttpServer{Port: 8080}
-
 	httpServer.Serve(wgPtr)
 
 	wg.Wait()
