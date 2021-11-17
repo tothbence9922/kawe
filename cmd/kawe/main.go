@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	aggregator "github.com/tothbence9922/kawe/internal/aggregator"
-	simpleService "github.com/tothbence9922/kawe/internal/ping/impl/simple/service"
+	simple "github.com/tothbence9922/kawe/internal/ping/impl/simple"
 	server "github.com/tothbence9922/kawe/internal/server"
 )
 
@@ -17,7 +17,7 @@ func main() {
 
 	aggregator.Start(wgPtr)
 
-	simpleService.Start(wgPtr)
+	simple.Start(wgPtr)
 
 	httpServer := server.HttpServer{Port: 8080}
 	httpServer.Serve(wgPtr)

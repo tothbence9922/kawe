@@ -6,34 +6,34 @@ import (
 	"net"
 	"time"
 
-	simpleResponse "github.com/tothbence9922/kawe/internal/ping/impl/simple/response"
 	interfaces "github.com/tothbence9922/kawe/internal/ping/interfaces"
 )
 
-type SimplePingerMethod struct {
+type PingMethod struct {
 	Target      string
 	Method      string
 	Timeout     int
 	Periodicity int
 }
 
-func (spm SimplePingerMethod) GetTarget() string {
+func (spm PingMethod) GetTarget() string {
+
 	return spm.Target
 }
 
-func (spm SimplePingerMethod) String() string {
+func (spm PingMethod) String() string {
 
 	return fmt.Sprintf("Target\t\tMethod\t\tTimeout\t\tPeriodicity\n%s\t\t%s\t\t%d\t\t%d\n", spm.Target, spm.Method, spm.Timeout, spm.Periodicity)
 }
 
-func (spm SimplePingerMethod) GetPeriodicity() (Periodicity int) {
+func (spm PingMethod) GetPeriodicity() (Periodicity int) {
 
 	return spm.Periodicity
 }
 
-func (spm SimplePingerMethod) Ping() (interfaces.IPingResponse, error) {
+func (spm PingMethod) Ping() (interfaces.IPingResponse, error) {
 
-	ret := simpleResponse.PingResponse{Target: spm.Target}
+	ret := PingResponse{Target: spm.Target}
 
 	if len(spm.Method) == 0 {
 		return ret, errors.New("No applicable network options given.")

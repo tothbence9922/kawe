@@ -8,19 +8,16 @@ import (
 	"github.com/tothbence9922/kawe/internal/aggregator"
 	"github.com/tothbence9922/kawe/internal/configuration"
 	interfaces "github.com/tothbence9922/kawe/internal/ping/interfaces"
-
-	simpleMethod "github.com/tothbence9922/kawe/internal/ping/impl/simple/method"
-	simpleResult "github.com/tothbence9922/kawe/internal/ping/impl/simple/result"
 )
 
-type SimplePingerService struct {
+type PingService struct {
 	methods []interfaces.IPingMethod
 	Name    string
 	Channel chan (interfaces.IPingResult)
 	Result  interfaces.IPingResult
 }
 
-func (sps SimplePingerService) String() string {
+func (sps PingService) String() string {
 
 	var ret string
 
@@ -30,17 +27,17 @@ func (sps SimplePingerService) String() string {
 	return ret
 }
 
-func (sps *SimplePingerService) Configure(config configuration.ServiceConfiguration, channel chan (interfaces.IPingResult)) {
+func (sps *PingService) Configure(config configuration.ServiceConfiguration, channel chan (interfaces.IPingResult)) {
 
 	sps.Name = config.Name
 	sps.Channel = channel
-	sps.Result = &simpleResult.SimplePingResult{ServiceName: sps.Name, Responses: make(map[string](interfaces.IPingResponse))}
+	sps.Result = &PingResult{ServiceName: sps.Name, Responses: make(map[string](interfaces.IPingResponse))}
 	for _, pingConfig := range config.PingConfigs {
-		sps.methods = append(sps.methods, simpleMethod.SimplePingerMethod{Target: pingConfig.Target, Timeout: 5000, Method: "tcp", Periodicity: pingConfig.Periodicity})
+		sps.methods = append(sps.methods, PingMethod{Target: pingConfig.Target, Timeout: 5000, Method: "tcp", Periodicity: pingConfig.Periodicity})
 	}
 }
 
-func (sps *SimplePingerService) StartMethod(wg *sync.WaitGroup, method interfaces.IPingMethod) {
+func (sps *PingService) StartMethod(wg *sync.WaitGroup, method interfaces.IPingMethod) {
 
 	go func(method interfaces.IPingMethod, outChannel chan<- (interfaces.IPingResult)) {
 
@@ -48,7 +45,7 @@ func (sps *SimplePingerService) StartMethod(wg *sync.WaitGroup, method interface
 		for true {
 			pingResponse, error := method.Ping()
 			if error == nil {
-				sps.Result.GetResponses()[pingResponse.GetTarget()] = pingResponse
+				sps.Result.AddResponse(pingResponse)
 				outChannel <- sps.Result
 			}
 			time.Sleep(time.Second * time.Duration(method.GetPeriodicity()))
@@ -56,7 +53,7 @@ func (sps *SimplePingerService) StartMethod(wg *sync.WaitGroup, method interface
 	}(method, sps.Channel)
 }
 
-func (sps *SimplePingerService) StartMethods(wg *sync.WaitGroup) {
+func (sps *PingService) StartMethods(wg *sync.WaitGroup) {
 
 	for _, method := range sps.methods {
 		sps.StartMethod(wg, method)
@@ -70,7 +67,7 @@ func Start(wg *sync.WaitGroup) {
 	for _, serviceConfig := range configuration.GetInstance().ServiceConfigs {
 		wg.Add(1)
 
-		sampleService := new(SimplePingerService)
+		sampleService := new(PingService)
 
 		sampleService.Configure(serviceConfig, commonChannel)
 		sampleService.StartMethods(wg)

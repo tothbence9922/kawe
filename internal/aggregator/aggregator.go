@@ -31,6 +31,14 @@ func (a *Aggregator) GetResults() map[string](interfaces.IPingResult) {
 	return a.Results
 }
 
+func (a *Aggregator) AddResult(newResult interfaces.IPingResult) {
+
+	a.Lock()
+	defer a.Unlock()
+
+	GetInstance().Results[newResult.GetServiceName()] = newResult
+}
+
 func Start(wg *sync.WaitGroup) {
 
 	wg.Add(1)
@@ -38,12 +46,8 @@ func Start(wg *sync.WaitGroup) {
 		defer wg.Done()
 
 		for true {
-			// Handling incoming data, setting the "state"
 			newResult := <-inChannel
-			GetInstance().Results[newResult.GetServiceName()] = newResult
-
-			//outJson, _ := json.Marshal(GetInstance().Results) // Printing the state for debug...
-			//fmt.Println(string(outJson))
+			GetInstance().AddResult(newResult)
 		}
 	}(GetInstance().Channel)
 	fmt.Println("Aggregator started")
