@@ -1,7 +1,7 @@
 package aggregator
 
-import simple "github.com/tothbence9922/kawe/internal/ping/simple/result"
+import interfaces "github.com/tothbence9922/kawe/internal/ping/interfaces"
 
 type IAggregator interface {
-	GetResults() simple.PingResult
+	GetResults() interfaces.IPingResult
 }

@@ -1,6 +1,6 @@
 package simple
 
-type PingResponse interface {
+type IPingResponse interface {
 	String() string
 	Json() string
 	GetTarget() string
