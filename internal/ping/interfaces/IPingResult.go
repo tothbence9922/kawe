@@ -5,4 +5,5 @@ type IPingResult interface {
 	Json() string
 	GetServiceName() string
 	GetResponses() map[string](IPingResponse)
+	AddResponse(IPingResponse)
 }

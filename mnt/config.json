@@ -4,7 +4,7 @@
             "name": "google_ping_service",
             "pingConfigs": [
                 {
-                    "periodicity": 5,
+                    "periodicity": 1,
                     "target": "google.com:443"
                 }
             ]
@@ -13,11 +13,11 @@
             "name": "youtube_ping_service",
             "pingConfigs": [
                 {
-                    "periodicity": 10,
+                    "periodicity": 1,
                     "target": "youtube.com:443"
                 },
                 {
-                    "periodicity": 5,
+                    "periodicity": 1,
                     "target": "google.com:443"
                 }
             ]

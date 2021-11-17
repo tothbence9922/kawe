@@ -8,23 +8,31 @@ import (
 	interfaces "github.com/tothbence9922/kawe/internal/ping/interfaces"
 )
 
-type SimplePingResult struct {
+type PingResult struct {
 	sync.Mutex
 	Responses   map[string](interfaces.IPingResponse)
 	ServiceName string
 }
 
-func (spr *SimplePingResult) GetResponses() map[string](interfaces.IPingResponse) {
+func (spr *PingResult) GetResponses() map[string](interfaces.IPingResponse) {
 
 	return spr.Responses
 }
 
-func (spr *SimplePingResult) GetServiceName() string {
+func (spr *PingResult) AddResponse(newResponse interfaces.IPingResponse) {
+
+	spr.Lock()
+	defer spr.Unlock()
+
+	spr.Responses[newResponse.GetTarget()] = newResponse
+}
+
+func (spr *PingResult) GetServiceName() string {
 
 	return spr.ServiceName
 }
 
-func (spr *SimplePingResult) String() string {
+func (spr *PingResult) String() string {
 
 	ret := ""
 
@@ -35,7 +43,7 @@ func (spr *SimplePingResult) String() string {
 	return fmt.Sprintf("%s\t%s", spr.ServiceName, ret)
 }
 
-func (spr *SimplePingResult) Json() string {
+func (spr *PingResult) Json() string {
 
 	jsonString, _ := json.Marshal(spr)
 	return string(jsonString)

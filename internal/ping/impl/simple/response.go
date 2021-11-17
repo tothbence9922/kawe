@@ -14,6 +14,7 @@ type PingResponse struct {
 }
 
 func (pr PingResponse) GetTarget() string {
+
 	return pr.Target
 }
 
