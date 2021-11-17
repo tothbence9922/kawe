@@ -15,6 +15,8 @@ type HttpServer struct {
 
 func api(w http.ResponseWriter, req *http.Request) {
 	outJson, _ := json.Marshal(aggregator.GetInstance().Results)
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	fmt.Fprintf(w, string(outJson))
 }
 
