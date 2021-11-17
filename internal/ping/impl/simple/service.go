@@ -8,9 +8,6 @@ import (
 	"github.com/tothbence9922/kawe/internal/aggregator"
 	"github.com/tothbence9922/kawe/internal/configuration"
 	interfaces "github.com/tothbence9922/kawe/internal/ping/interfaces"
-
-	simpleMethod "github.com/tothbence9922/kawe/internal/ping/impl/simple/method"
-	simpleResult "github.com/tothbence9922/kawe/internal/ping/impl/simple/result"
 )
 
 type SimplePingerService struct {
@@ -34,9 +31,9 @@ func (sps *SimplePingerService) Configure(config configuration.ServiceConfigurat
 
 	sps.Name = config.Name
 	sps.Channel = channel
-	sps.Result = &simpleResult.SimplePingResult{ServiceName: sps.Name, Responses: make(map[string](interfaces.IPingResponse))}
+	sps.Result = &SimplePingResult{ServiceName: sps.Name, Responses: make(map[string](interfaces.IPingResponse))}
 	for _, pingConfig := range config.PingConfigs {
-		sps.methods = append(sps.methods, simpleMethod.SimplePingerMethod{Target: pingConfig.Target, Timeout: 5000, Method: "tcp", Periodicity: pingConfig.Periodicity})
+		sps.methods = append(sps.methods, SimplePingerMethod{Target: pingConfig.Target, Timeout: 5000, Method: "tcp", Periodicity: pingConfig.Periodicity})
 	}
 }
 

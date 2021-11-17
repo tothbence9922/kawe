@@ -6,7 +6,6 @@ import (
 	"net"
 	"time"
 
-	simpleResponse "github.com/tothbence9922/kawe/internal/ping/impl/simple/response"
 	interfaces "github.com/tothbence9922/kawe/internal/ping/interfaces"
 )
 
@@ -33,7 +32,7 @@ func (spm SimplePingerMethod) GetPeriodicity() (Periodicity int) {
 
 func (spm SimplePingerMethod) Ping() (interfaces.IPingResponse, error) {
 
-	ret := simpleResponse.PingResponse{Target: spm.Target}
+	ret := PingResponse{Target: spm.Target}
 
 	if len(spm.Method) == 0 {
 		return ret, errors.New("No applicable network options given.")
