@@ -19,7 +19,6 @@ type PrometheusServer struct {
 }
 
 func (ps *PrometheusServer) Init(processedData map[string]processor.IProcessedData) {
-
 	ps.Metrics = make(map[string](prometheus.Gauge))
 }
 
