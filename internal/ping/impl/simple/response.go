@@ -33,3 +33,15 @@ func (pr PingResponse) Json() string {
 	jsonString, _ := json.Marshal(pr)
 	return string(jsonString)
 }
+func (pr PingResponse) GetSuccess() bool {
+
+	return pr.Success
+}
+func (pr PingResponse) GetError() string {
+
+	return pr.Error
+}
+func (pr PingResponse) GetTimestamp() time.Time {
+
+	return pr.Timestamp
+}

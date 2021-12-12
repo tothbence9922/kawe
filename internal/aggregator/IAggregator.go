@@ -1,8 +1,8 @@
 package aggregator
 
-import interfaces "github.com/tothbence9922/kawe/internal/ping/interfaces"
+import processorInterfaces "github.com/tothbence9922/kawe/internal/processor/interfaces"
 
 type IAggregator interface {
-	GetResults() interfaces.IPingResult
-	AddResult(interfaces.IPingResult)
+	GetResults() processorInterfaces.IProcessedData
+	AddResult(processorInterfaces.IProcessedData)
 }
