@@ -8,6 +8,7 @@ import (
 
 type Configuration struct {
 	ServiceConfigs []ServiceConfiguration
+	ServerConfigs  []ServerConfiguration
 }
 
 var configInstance *Configuration
@@ -39,6 +40,18 @@ func (c Configuration) String() string {
 	}
 
 	return ret
+}
+
+type ServerConfiguration struct {
+	Type string
+	Port int
+}
+
+func (sc ServerConfiguration) String() string {
+
+	portString := fmt.Sprintf(":%d", sc.Port)
+
+	return sc.Type + portString
 }
 
 type ServiceConfiguration struct {
