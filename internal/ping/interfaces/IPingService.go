@@ -1,7 +1,7 @@
-package simple
+package ping
 
 type IPingService interface {
 	String() string
-	configure()
-	startMethods()
+	Configure()
+	StartMethods()
 }

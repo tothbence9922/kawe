@@ -1,4 +1,4 @@
-package simple
+package ping
 
 type IPingResult interface {
 	String() string

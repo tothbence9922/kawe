@@ -42,8 +42,9 @@ func (c Configuration) String() string {
 }
 
 type ServiceConfiguration struct {
-	Name        string
-	PingConfigs []PingConfiguration
+	Name            string
+	PingConfigs     []PingConfiguration
+	ProcessorConfig ProcessorConfiguration
 }
 
 func (sc ServiceConfiguration) String() string {
@@ -59,11 +60,22 @@ type PingConfiguration struct {
 	Periodicity int
 	Method      interface{}
 	Target      string
+	Timeout     int
 }
 
 func (pc PingConfiguration) String() string {
 
 	return fmt.Sprintf("periodicity\t\ttarget\n%d\t\t%s\n", pc.Periodicity, pc.Target)
+}
+
+type ProcessorConfiguration struct {
+	Type   string
+	Params interface{}
+}
+
+func (pc ProcessorConfiguration) String() string {
+
+	return fmt.Sprintf("periodicity\t\ttarget\n%s\t\n", pc.Type)
 }
 
 func check(e error) {

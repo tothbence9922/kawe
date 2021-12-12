@@ -5,20 +5,29 @@
             "pingConfigs": [
                 {
                     "periodicity": 5,
-                    "target": "google.com:443"
+                    "target": "google.com:443",
+                    "timeout": 3000
                 }
-            ]
+            ],
+            "processor" : {
+                "type": "AVAILABILITY",
+                "params": {
+                    "percentage": 50
+                }
+            }
         },
         {
             "name": "youtube_ping_service",
             "pingConfigs": [
                 {
                     "periodicity": 10,
-                    "target": "youtube.com:443"
+                    "target": "youtube.com:443",
+                    "timeout": 1000
                 },
                 {
                     "periodicity": 5,
-                    "target": "google.com:443"
+                    "target": "google.com:443",
+                    "timeout": 5000
                 }
             ]
         }

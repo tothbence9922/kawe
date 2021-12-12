@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"sync"
 
-	interfaces "github.com/tothbence9922/kawe/internal/ping/interfaces"
+	processorInterfaces "github.com/tothbence9922/kawe/internal/processor/interfaces"
 )
 
 type Aggregator struct {
 	sync.Mutex
-	Channel chan (interfaces.IPingResult)
-	Results map[string](interfaces.IPingResult)
+	Channel chan (processorInterfaces.IProcessedData)
+	Results map[string](processorInterfaces.IProcessedData)
 }
 
 var aggregatorInstance *Aggregator
@@ -19,19 +19,19 @@ func GetInstance() *Aggregator {
 
 	if aggregatorInstance == nil {
 		aggregatorInstance = new(Aggregator)
-		aggregatorInstance.Channel = make(chan interfaces.IPingResult)
-		aggregatorInstance.Results = make(map[string](interfaces.IPingResult))
+		aggregatorInstance.Channel = make(chan processorInterfaces.IProcessedData)
+		aggregatorInstance.Results = make(map[string](processorInterfaces.IProcessedData))
 	}
 
 	return aggregatorInstance
 }
 
-func (a *Aggregator) GetResults() map[string](interfaces.IPingResult) {
+func (a *Aggregator) GetResults() map[string](processorInterfaces.IProcessedData) {
 
 	return a.Results
 }
 
-func (a *Aggregator) AddResult(newResult interfaces.IPingResult) {
+func (a *Aggregator) AddResult(newResult processorInterfaces.IProcessedData) {
 
 	a.Lock()
 	defer a.Unlock()
@@ -42,7 +42,7 @@ func (a *Aggregator) AddResult(newResult interfaces.IPingResult) {
 func Start(wg *sync.WaitGroup) {
 
 	wg.Add(1)
-	go func(inChannel <-chan (interfaces.IPingResult)) {
+	go func(inChannel <-chan (processorInterfaces.IProcessedData)) {
 		defer wg.Done()
 
 		for true {

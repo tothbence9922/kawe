@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	aggregator "github.com/tothbence9922/kawe/internal/aggregator"
-	simple "github.com/tothbence9922/kawe/internal/ping/impl/simple"
+	simpleService "github.com/tothbence9922/kawe/internal/ping/impl/simple"
 	prometheusServer "github.com/tothbence9922/kawe/internal/server/impl/prometheus"
 	httpServer "github.com/tothbence9922/kawe/internal/server/impl/simple"
 )
@@ -16,9 +16,11 @@ var (
 func main() {
 	wgPtr := &wg
 
+	// Aggregator is started before the pinging service
 	aggregator.Start(wgPtr)
 
-	simple.Start(wgPtr)
+	// The pinging service starts based on the configuration file
+	simpleService.Start(wgPtr)
 
 	httpServer := httpServer.HttpServer{Port: 8080}
 	httpServer.Serve(wgPtr)

@@ -1,4 +1,4 @@
-package simple
+package ping
 
 type IPingMethod interface {
 	String() string
