@@ -88,7 +88,7 @@ type ProcessorConfiguration struct {
 
 func (pc ProcessorConfiguration) String() string {
 
-	return fmt.Sprintf("periodicity\t\ttarget\n%s\t\n", pc.Type)
+	return fmt.Sprintf("\tType\n%s\n", pc.Type)
 }
 
 func check(e error) {

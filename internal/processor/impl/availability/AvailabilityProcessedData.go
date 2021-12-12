@@ -9,13 +9,25 @@ import (
 type AvailabilityProcessedData struct {
 	Result     pingInterfaces.IPingResult
 	Available  bool
+	Threshold  float32
 	Percentage float32
+}
+
+func (pd *AvailabilityProcessedData) GetPercentage() float32 {
+
+	return pd.Percentage
+}
+
+func (pd *AvailabilityProcessedData) GetThreshold() float32 {
+
+	return pd.Threshold
 }
 
 func (pd *AvailabilityProcessedData) GetAvailability() bool {
 
 	return pd.Available
 }
+
 func (pd *AvailabilityProcessedData) GetServiceName() string {
 
 	return pd.Result.GetServiceName()

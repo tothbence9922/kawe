@@ -67,7 +67,6 @@ func Start(wg *sync.WaitGroup) {
 		wg.Add(1)
 
 		service := new(PingService)
-
 		curProcessor := processor.GetProcessor(serviceConfig.ProcessorConfig)
 
 		service.Configure(serviceConfig, curProcessor)

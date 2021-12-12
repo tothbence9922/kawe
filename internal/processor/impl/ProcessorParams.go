@@ -1,5 +1,5 @@
 package processor
 
 type AvailabiltiyParams struct {
-	Percentage float32
+	Threshold float32
 }

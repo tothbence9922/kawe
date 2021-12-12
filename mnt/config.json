@@ -9,10 +9,10 @@
                     "timeout": 3000
                 }
             ],
-            "processor": {
+            "processorConfig": {
                 "type": "AVAILABILITY",
                 "params": {
-                    "percentage": 50
+                    "Threshold": 55.02
                 }
             }
         },
