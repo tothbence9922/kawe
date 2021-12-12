@@ -5,4 +5,6 @@ type IProcessedData interface {
 	Json() string
 	GetServiceName() string
 	GetAvailability() bool
+	GetThreshold() float32
+	GetPercentage() float32
 }

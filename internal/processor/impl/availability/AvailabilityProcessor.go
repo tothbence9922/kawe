@@ -6,13 +6,14 @@ import (
 )
 
 type AvailabilityProcessor struct {
-	Percentage float32
+	Threshold float32
 }
 
 func (ap *AvailabilityProcessor) ProcessData(result pingInterfaces.IPingResult) {
 
 	processedData := new(AvailabilityProcessedData)
 	processedData.Result = result
+	processedData.Threshold = float32(ap.Threshold)
 
 	responses := result.GetResponses()
 	totalCount := 0
@@ -25,11 +26,11 @@ func (ap *AvailabilityProcessor) ProcessData(result pingInterfaces.IPingResult) 
 		}
 	}
 
-	percentage := float32(successCount) / float32(totalCount) * float32(100)
+	percentage := ((float32(successCount) / float32(totalCount)) * float32(100))
 	processedData.Percentage = percentage
 
 	processedData.Available = false
-	if ap.Percentage <= percentage {
+	if processedData.Threshold <= processedData.Percentage {
 		processedData.Available = true
 	}
 
