@@ -12,6 +12,10 @@ type AvailabilityProcessedData struct {
 	Percentage float32
 }
 
+func (pd *AvailabilityProcessedData) GetAvailability() bool {
+
+	return pd.Available
+}
 func (pd *AvailabilityProcessedData) GetServiceName() string {
 
 	return pd.Result.GetServiceName()
