@@ -1,7 +1,8 @@
 package configuration
 
 type IConfiguration interface {
-	GetConfiguration()
+	GetFileConfiguration()
+	GetKubernetesConfiguration()
 	String() string
 	GetInstance()
 }
