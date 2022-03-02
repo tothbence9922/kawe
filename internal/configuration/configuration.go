@@ -31,12 +31,22 @@ func GetInstance() *Configuration {
 	return configInstance
 }
 
+/*
+	- Automatic discovery of cluster-resources (namespaces, services, pods)
+		+ Authenticating
+		+ GET-ing the resources
+	- Creating a configuration entry
+		+ Mapping the acquired data into a configuration entry
+	- Appending the configuration entry to the already existing (file based) configuration
+		+ or creating the whole configuration
+*/
+
 func (cfg *Configuration) GetKubernetesConfiguration() {
 
 	fmt.Println("Kubernetes configuration started...")
 
+	// Authentication - from outside of the cluster
 	var kubeconfig *string
-
 	if pwd, _ := os.Getwd(); pwd != "" {
 		kubeconfig = flag.String("kubeconfig", filepath.Join(pwd, "/mnt/kubeConfig"), "(optional) absolute path to the kubeconfig file")
 	} else {
@@ -55,6 +65,12 @@ func (cfg *Configuration) GetKubernetesConfiguration() {
 	if err != nil {
 		panic(err.Error())
 	}
+	// Authentication done, client is available
+
+	// Querying the required resources
+	// 	1) namespaces
+	//  2) for each namespace, the services and the pods
+	//  3) for each pod, the annotations so we can see if it is behind a service
 	namespaces, err := clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
