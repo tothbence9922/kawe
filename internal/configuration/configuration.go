@@ -8,15 +8,15 @@ import (
 	"os"
 	"path/filepath"
 
-	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
 type Configuration struct {
-	ServiceConfigs []ServiceConfiguration
-	ServerConfigs  []ServerConfiguration
+	ServiceConfigs   []ServiceConfiguration
+	KubernetesConfig KubernetesConfiguration
+	ServerConfigs    []ServerConfiguration
 }
 
 var configInstance *Configuration
@@ -77,45 +77,66 @@ func (cfg *Configuration) GetKubernetesConfiguration() {
 	}
 	fmt.Printf("There are %d namespaces in the cluster\n", len(namespaces.Items))
 
+	// Iterating through all namespaces, adding services and pods behind services to the configuration
 	for _, namespace := range namespaces.Items {
 		fmt.Println(namespace.ObjectMeta.Name)
-	}
+		services, err := clientset.CoreV1().Services(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			panic(err.Error())
+		}
+		fmt.Println("Services:")
+		for _, service := range services.Items {
+			fmt.Println("\t", service.ObjectMeta.Name)
+			fmt.Println("\t\t", service.ObjectMeta.String())
+			fmt.Println("\t\t", service.TypeMeta.String())
+			fmt.Println("\t\t", service.Status.String())
+			fmt.Println("\t\t", service.Status.Conditions)
+		}
 
-	pods, err := clientset.CoreV1().Pods("qdak").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		panic(err.Error())
-	}
-	fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
-	for _, pod := range pods.Items {
-		fmt.Println(pod.ObjectMeta.Name)
-	}
+		endpoints, err := clientset.CoreV1().Endpoints(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
+		fmt.Println("Endpoints:")
+		for _, endpoint := range endpoints.Items {
+			fmt.Println("\t", endpoint.ObjectMeta.Name)
+			for _, subset := range endpoint.Subsets {
+				for _, address := range subset.Addresses {
+					fmt.Println("\t\t", address.IP)
+				}
+			}
+		}
 
-	// Examples for error handling:
-	// - Use helper functions like e.g. errors.IsNotFound()
-	// - And/or cast to StatusError and use its properties like e.g. ErrStatus.Message
-	namespace := "qdak"
-	podName := "qdak-vendor-admin-frontend-84d4c9b696-4t2vm"
-	_, err = clientset.CoreV1().Pods(namespace).Get(context.TODO(), podName, metav1.GetOptions{})
-	if errors.IsNotFound(err) {
-		fmt.Printf("Pod %s in namespace %s not found\n", podName, namespace)
-	} else if statusError, isStatus := err.(*errors.StatusError); isStatus {
-		fmt.Printf("Error getting pod %s in namespace %s: %v\n",
-			podName, namespace, statusError.ErrStatus.Message)
-	} else if err != nil {
-		panic(err.Error())
-	} else {
-		fmt.Printf("Found pod %s in namespace %s\n", podName, namespace)
-	}
-	services, err := clientset.CoreV1().Services("qdak").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		panic(err.Error())
-	}
-	fmt.Printf("There are %d services in the cluster\n", len(services.Items))
+		pods, err := clientset.CoreV1().Pods(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			panic(err.Error())
+		}
+		fmt.Println("Pods:")
+		for _, pod := range pods.Items {
+			podIp := pod.Status.PodIP
+			fmt.Println("----->", podIp)
+			annotations := pod.Annotations
 
-	if len(services.Items) > 0 {
-		fmt.Println("%s\n\n", services.Items[0])
-	}
+			portsString, ok := annotations["field.cattle.io/ports"]
 
+			if !ok {
+				fmt.Println("No ports found")
+				continue
+			}
+			fmt.Println("PORTS STRING: ", portsString)
+			portsByteArray := []byte(portsString)
+
+			var ports [][]map[string]interface{}
+
+			if err := json.Unmarshal(portsByteArray, &ports); err != nil {
+				panic(err)
+			}
+
+			for i := range ports {
+				for _, port := range ports[i] {
+					fmt.Println("PROTOCOL: ", port["protocol"])
+					fmt.Println("PORT: ", port["containerPort"])
+				}
+			}
+		}
+	}
 	fmt.Println("Kubernetes configuration finished!")
 }
 
@@ -149,6 +170,24 @@ func (sc ServerConfiguration) String() string {
 	portString := fmt.Sprintf(":%d", sc.Port)
 
 	return sc.Type + portString
+}
+
+type KubernetesConfiguration struct {
+	Namespaces []NamespaceConfiguartion
+}
+
+type NamespaceConfiguartion struct {
+	Services []ServiceConfiguartion
+	Pods     []PodConfiguartion
+}
+type ServiceConfiguartion struct {
+	Pods []PodConfiguartion
+}
+type PodConfiguartion struct {
+	Name    string
+	Address string
+	Method  string
+	Enabled bool
 }
 
 type ServiceConfiguration struct {
