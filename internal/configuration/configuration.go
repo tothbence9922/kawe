@@ -180,9 +180,11 @@ type NamespaceConfiguartion struct {
 	Services []ServiceConfiguartion
 	Pods     []PodConfiguartion
 }
+
 type ServiceConfiguartion struct {
 	Pods []PodConfiguartion
 }
+
 type PodConfiguartion struct {
 	Name    string
 	Address string
