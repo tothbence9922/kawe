@@ -119,18 +119,14 @@ func (cfg *Configuration) GetKubernetesConfiguration() {
 		namespaceConfigs = append(namespaceConfigs, KubernetesNamespaceConfiguration{Name: namespace.ObjectMeta.Name, Services: serviceConfigurations, Pods: separatePodConfigs})
 	}
 
-	namespacesJSON, err := json.Marshal(namespaceConfigs)
-
-	if err == nil {
-		fmt.Println(string(namespacesJSON))
-	}
-
 	newCfg := Configuration{ServiceConfigs: cfg.ServiceConfigs, ServerConfigs: cfg.ServerConfigs, KubernetesConfig: KubernetesConfiguration{Namespaces: namespaceConfigs}}
 
 	file, err := json.MarshalIndent(newCfg, "", " ")
 
 	pwd, _ := os.Getwd()
 	err = os.WriteFile(pwd+"/mnt/config.json", file, 0644)
+
+	json.Unmarshal([]byte(file), &cfg)
 
 	fmt.Println("Kubernetes configuration finished!")
 }
@@ -178,8 +174,9 @@ type KubernetesNamespaceConfiguration struct {
 }
 
 type KubernetesServiceConfiguration struct {
-	Name string
-	Pods []KubernetesPodConfiguartion
+	Name            string
+	Pods            []KubernetesPodConfiguartion
+	ProcessorConfig ProcessorConfiguration
 }
 
 type KubernetesPodConfiguartion struct {
