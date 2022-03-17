@@ -31,16 +31,6 @@ func GetInstance() *Configuration {
 	return configInstance
 }
 
-/*
-	- Automatic discovery of cluster-resources (namespaces, services, pods)
-		+ Authenticating
-		+ GET-ing the resources
-	- Creating a configuration entry
-		+ Mapping the acquired data into a configuration entry
-	- Appending the configuration entry to the already existing (file based) configuration
-		+ or creating the whole configuration
-*/
-
 func (cfg *Configuration) GetKubernetesConfiguration() {
 
 	fmt.Println("Kubernetes configuration started...")
@@ -75,68 +65,73 @@ func (cfg *Configuration) GetKubernetesConfiguration() {
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("There are %d namespaces in the cluster\n", len(namespaces.Items))
+	namespaceConfigs := []KubernetesNamespaceConfiguration{}
 
 	// Iterating through all namespaces, adding services and pods behind services to the configuration
 	for _, namespace := range namespaces.Items {
-		fmt.Println(namespace.ObjectMeta.Name)
-		services, err := clientset.CoreV1().Services(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
+		// Getting all pods - including the ones behind services and separate ones aswell.
+		allPods, err := clientset.CoreV1().Pods(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			panic(err.Error())
 		}
-		fmt.Println("Services:")
-		for _, service := range services.Items {
-			fmt.Println("\t", service.ObjectMeta.Name)
-			fmt.Println("\t\t", service.ObjectMeta.String())
-			fmt.Println("\t\t", service.TypeMeta.String())
-			fmt.Println("\t\t", service.Status.String())
-			fmt.Println("\t\t", service.Status.Conditions)
+		podConfigs := []KubernetesPodConfiguartion{}
+		for _, pod := range allPods.Items {
+			podIp := pod.Status.PodIP
+			podName := pod.ObjectMeta.Name
+			podConfigs = append(podConfigs, KubernetesPodConfiguartion{Address: podIp, Name: podName, Enabled: true, Periodicity: 5, Timeout: 5000})
 		}
 
+		// Using endpoints as "services"
 		endpoints, err := clientset.CoreV1().Endpoints(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
-		fmt.Println("Endpoints:")
+
+		serviceConfigurations := []KubernetesServiceConfiguration{}
 		for _, endpoint := range endpoints.Items {
-			fmt.Println("\t", endpoint.ObjectMeta.Name)
+			serviceName := endpoint.ObjectMeta.Name
+			currentPodConfigs := []KubernetesPodConfiguartion{}
+
 			for _, subset := range endpoint.Subsets {
 				for _, address := range subset.Addresses {
-					fmt.Println("\t\t", address.IP)
+					for _, podConfig := range podConfigs {
+						if address.IP == podConfig.Address {
+							currentPodConfigs = append(currentPodConfigs, podConfig)
+						}
+					}
 				}
 			}
+			serviceConfigurations = append(serviceConfigurations, KubernetesServiceConfiguration{Name: serviceName, Pods: currentPodConfigs})
 		}
 
-		pods, err := clientset.CoreV1().Pods(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
-		if err != nil {
-			panic(err.Error())
-		}
-		fmt.Println("Pods:")
-		for _, pod := range pods.Items {
-			podIp := pod.Status.PodIP
-			fmt.Println("----->", podIp)
-			annotations := pod.Annotations
-
-			portsString, ok := annotations["field.cattle.io/ports"]
-
-			if !ok {
-				fmt.Println("No ports found")
-				continue
-			}
-			fmt.Println("PORTS STRING: ", portsString)
-			portsByteArray := []byte(portsString)
-
-			var ports [][]map[string]interface{}
-
-			if err := json.Unmarshal(portsByteArray, &ports); err != nil {
-				panic(err)
-			}
-
-			for i := range ports {
-				for _, port := range ports[i] {
-					fmt.Println("PROTOCOL: ", port["protocol"])
-					fmt.Println("PORT: ", port["containerPort"])
+		separatePodConfigs := []KubernetesPodConfiguartion{}
+		for _, podConfig := range podConfigs {
+			found := false
+			for _, serviceConfig := range serviceConfigurations {
+				for _, svcPodConfig := range serviceConfig.Pods {
+					if svcPodConfig.Address == podConfig.Address {
+						found = true
+					}
 				}
 			}
+			if !found {
+				separatePodConfigs = append(separatePodConfigs, podConfig)
+			}
 		}
+
+		namespaceConfigs = append(namespaceConfigs, KubernetesNamespaceConfiguration{Name: namespace.ObjectMeta.Name, Services: serviceConfigurations, Pods: separatePodConfigs})
 	}
+
+	namespacesJSON, err := json.Marshal(namespaceConfigs)
+
+	if err == nil {
+		fmt.Println(string(namespacesJSON))
+	}
+
+	newCfg := Configuration{ServiceConfigs: cfg.ServiceConfigs, ServerConfigs: cfg.ServerConfigs, KubernetesConfig: KubernetesConfiguration{Namespaces: namespaceConfigs}}
+
+	file, err := json.MarshalIndent(newCfg, "", " ")
+
+	pwd, _ := os.Getwd()
+	err = os.WriteFile(pwd+"/mnt/config.json", file, 0644)
+
 	fmt.Println("Kubernetes configuration finished!")
 }
 
@@ -173,23 +168,26 @@ func (sc ServerConfiguration) String() string {
 }
 
 type KubernetesConfiguration struct {
-	Namespaces []NamespaceConfiguartion
+	Namespaces []KubernetesNamespaceConfiguration
 }
 
-type NamespaceConfiguartion struct {
-	Services []ServiceConfiguartion
-	Pods     []PodConfiguartion
+type KubernetesNamespaceConfiguration struct {
+	Name     string
+	Services []KubernetesServiceConfiguration
+	Pods     []KubernetesPodConfiguartion
 }
 
-type ServiceConfiguartion struct {
-	Pods []PodConfiguartion
+type KubernetesServiceConfiguration struct {
+	Name string
+	Pods []KubernetesPodConfiguartion
 }
 
-type PodConfiguartion struct {
-	Name    string
-	Address string
-	Method  string
-	Enabled bool
+type KubernetesPodConfiguartion struct {
+	Name        string
+	Address     string
+	Enabled     bool
+	Periodicity int
+	Timeout     int
 }
 
 type ServiceConfiguration struct {
