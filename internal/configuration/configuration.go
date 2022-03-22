@@ -38,7 +38,7 @@ func (cfg *Configuration) GetKubernetesConfiguration() {
 	// Authentication - from outside of the cluster
 	var kubeconfig *string
 	if pwd, _ := os.Getwd(); pwd != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(pwd, "/mnt/kubeConfig"), "(optional) absolute path to the kubeconfig file")
+		kubeconfig = flag.String("kubeconfig", filepath.Join(pwd, "/mnt/kubeConfig.yaml"), "(optional) absolute path to the kubeconfig file")
 	} else {
 		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	}
@@ -135,9 +135,10 @@ func (cfg *Configuration) GetFileConfiguration() {
 
 	pwd, _ := os.Getwd()
 	dat, err := os.ReadFile(pwd + "/mnt/config.json")
-	check(err)
 
-	json.Unmarshal([]byte(dat), &cfg)
+	if err == nil {
+		json.Unmarshal([]byte(dat), &cfg)
+	}
 }
 
 func (c Configuration) String() string {
@@ -222,11 +223,4 @@ type ProcessorConfiguration struct {
 func (pc ProcessorConfiguration) String() string {
 
 	return fmt.Sprintf("\tType\n%s\n", pc.Type)
-}
-
-func check(e error) {
-
-	if e != nil {
-		panic(e)
-	}
 }
