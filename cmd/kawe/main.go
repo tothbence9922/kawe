@@ -5,7 +5,6 @@ import (
 
 	aggregator "github.com/tothbence9922/kawe/internal/aggregator"
 	simpleService "github.com/tothbence9922/kawe/internal/ping/impl/simple"
-
 	server "github.com/tothbence9922/kawe/internal/server/impl"
 )
 
@@ -14,15 +13,14 @@ var (
 )
 
 func main() {
-	wgPtr := &wg
 
 	// Aggregator is started before the pinging service
-	aggregator.Start(wgPtr)
+	aggregator.Start(&wg)
 
 	// The pinging service starts based on the configuration file
-	simpleService.Start(wgPtr)
+	simpleService.Start(&wg)
 
-	server.Start(wgPtr)
+	server.Start(&wg)
 
 	wg.Wait()
 }

@@ -2,6 +2,7 @@ package aggregator
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 
 	processorInterfaces "github.com/tothbence9922/kawe/internal/processor/interfaces"
@@ -28,27 +29,34 @@ func GetInstance() *Aggregator {
 
 func (a *Aggregator) GetResults() map[string](processorInterfaces.IProcessedData) {
 
-	return a.Results
+	a.Lock()
+	defer a.Unlock()
+	m := make(map[string](processorInterfaces.IProcessedData), len(a.Results))
+	for k, v := range a.Results {
+		m[k] = v
+	}
+	return m
 }
 
 func (a *Aggregator) AddResult(newResult processorInterfaces.IProcessedData) {
-
 	a.Lock()
 	defer a.Unlock()
 
-	GetInstance().Results[newResult.GetServiceName()] = newResult
+	newResultMetricName := strings.ReplaceAll(newResult.GetServiceName(), "-", "_")
+
+	GetInstance().Results[newResultMetricName] = newResult
 }
 
 func Start(wg *sync.WaitGroup) {
 
 	wg.Add(1)
-	go func(inChannel <-chan (processorInterfaces.IProcessedData)) {
+	go func() {
 		defer wg.Done()
 
 		for true {
-			newResult := <-inChannel
+			newResult := <-GetInstance().Channel
 			GetInstance().AddResult(newResult)
 		}
-	}(GetInstance().Channel)
+	}()
 	fmt.Println("Aggregator started")
 }

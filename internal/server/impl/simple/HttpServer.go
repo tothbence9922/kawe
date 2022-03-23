@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/tothbence9922/kawe/internal/aggregator"
 )
@@ -24,6 +25,9 @@ func api(w http.ResponseWriter, req *http.Request) {
 func (hs HttpServer) Serve(wg *sync.WaitGroup) {
 	wg.Add(1)
 	go func() {
+		server := new(http.Server)
+		server.ReadTimeout = 5 * time.Second
+		server.WriteTimeout = 5 * time.Second
 		defer wg.Done()
 		http.HandleFunc("/api", api)
 

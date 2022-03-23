@@ -14,9 +14,8 @@ import (
 )
 
 type Configuration struct {
-	ServiceConfigs   []ServiceConfiguration
-	KubernetesConfig KubernetesConfiguration
-	ServerConfigs    []ServerConfiguration
+	EndpointConfigs EndpointConfiguration
+	ServerConfigs   []ServerConfiguration
 }
 
 var configInstance *Configuration
@@ -25,15 +24,19 @@ func GetInstance() *Configuration {
 
 	if configInstance == nil {
 		configInstance = new(Configuration)
-		configInstance.GetFileConfiguration()
-		configInstance.GetKubernetesConfiguration()
+		configInstance.GetConfiguration()
 	}
 	return configInstance
 }
 
-func (cfg *Configuration) GetKubernetesConfiguration() {
+func (cfg *Configuration) GetConfiguration() {
 
-	fmt.Println("Kubernetes configuration started...")
+	pwd, _ := os.Getwd()
+	dat, err := os.ReadFile(pwd + "/mnt/config.json")
+
+	if err == nil {
+		json.Unmarshal([]byte(dat), &cfg)
+	}
 
 	// Authentication - from outside of the cluster
 	var kubeconfig *string
@@ -65,7 +68,7 @@ func (cfg *Configuration) GetKubernetesConfiguration() {
 	if err != nil {
 		panic(err.Error())
 	}
-	namespaceConfigs := []KubernetesNamespaceConfiguration{}
+	namespaceConfigs := []NamespaceConfiguration{}
 
 	// Iterating through all namespaces, adding services and pods behind services to the configuration
 	for _, namespace := range namespaces.Items {
@@ -74,20 +77,20 @@ func (cfg *Configuration) GetKubernetesConfiguration() {
 		if err != nil {
 			panic(err.Error())
 		}
-		podConfigs := []KubernetesPodConfiguartion{}
+		podConfigs := []PodConfiguration{}
 		for _, pod := range allPods.Items {
 			podIp := pod.Status.PodIP
 			podName := pod.ObjectMeta.Name
-			podConfigs = append(podConfigs, KubernetesPodConfiguartion{Address: podIp, Name: podName, Enabled: true, Periodicity: 5, Timeout: 5000})
+			podConfigs = append(podConfigs, PodConfiguration{Address: podIp, Name: podName, Enabled: true, Periodicity: 5, Timeout: 5000})
 		}
 
 		// Using endpoints as "services"
 		endpoints, err := clientset.CoreV1().Endpoints(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
 
-		serviceConfigurations := []KubernetesServiceConfiguration{}
+		serviceConfigurations := []ServiceConfiguration{}
 		for _, endpoint := range endpoints.Items {
 			serviceName := endpoint.ObjectMeta.Name
-			currentPodConfigs := []KubernetesPodConfiguartion{}
+			currentPodConfigs := []PodConfiguration{}
 
 			for _, subset := range endpoint.Subsets {
 				for _, address := range subset.Addresses {
@@ -98,10 +101,10 @@ func (cfg *Configuration) GetKubernetesConfiguration() {
 					}
 				}
 			}
-			serviceConfigurations = append(serviceConfigurations, KubernetesServiceConfiguration{Name: serviceName, Pods: currentPodConfigs})
+			serviceConfigurations = append(serviceConfigurations, ServiceConfiguration{Name: serviceName, Pods: currentPodConfigs})
 		}
 
-		separatePodConfigs := []KubernetesPodConfiguartion{}
+		separatePodConfigs := []PodConfiguration{}
 		for _, podConfig := range podConfigs {
 			found := false
 			for _, serviceConfig := range serviceConfigurations {
@@ -116,38 +119,23 @@ func (cfg *Configuration) GetKubernetesConfiguration() {
 			}
 		}
 
-		namespaceConfigs = append(namespaceConfigs, KubernetesNamespaceConfiguration{Name: namespace.ObjectMeta.Name, Services: serviceConfigurations, Pods: separatePodConfigs})
+		namespaceConfigs = append(namespaceConfigs, NamespaceConfiguration{Name: namespace.ObjectMeta.Name, Services: serviceConfigurations, Pods: separatePodConfigs})
 	}
 
-	newCfg := Configuration{ServiceConfigs: cfg.ServiceConfigs, ServerConfigs: cfg.ServerConfigs, KubernetesConfig: KubernetesConfiguration{Namespaces: namespaceConfigs}}
+	newCfg := Configuration{ServerConfigs: cfg.ServerConfigs, EndpointConfigs: EndpointConfiguration{Namespaces: namespaceConfigs}}
 
 	file, err := json.MarshalIndent(newCfg, "", " ")
 
-	pwd, _ := os.Getwd()
+	pwd, _ = os.Getwd()
 	err = os.WriteFile(pwd+"/mnt/config.json", file, 0644)
 
 	json.Unmarshal([]byte(file), &cfg)
-
-	fmt.Println("Kubernetes configuration finished!")
 }
 
-func (cfg *Configuration) GetFileConfiguration() {
-
-	pwd, _ := os.Getwd()
-	dat, err := os.ReadFile(pwd + "/mnt/config.json")
-
-	if err == nil {
-		json.Unmarshal([]byte(dat), &cfg)
-	}
-}
-
+// TODO fix
 func (c Configuration) String() string {
 
 	var ret string
-
-	for _, curSvcConfig := range c.ServiceConfigs {
-		ret = ret + curSvcConfig.String()
-	}
 
 	return ret
 }
@@ -164,23 +152,23 @@ func (sc ServerConfiguration) String() string {
 	return sc.Type + portString
 }
 
-type KubernetesConfiguration struct {
-	Namespaces []KubernetesNamespaceConfiguration
+type EndpointConfiguration struct {
+	Namespaces []NamespaceConfiguration
 }
 
-type KubernetesNamespaceConfiguration struct {
+type NamespaceConfiguration struct {
 	Name     string
-	Services []KubernetesServiceConfiguration
-	Pods     []KubernetesPodConfiguartion
+	Services []ServiceConfiguration
+	Pods     []PodConfiguration
 }
 
-type KubernetesServiceConfiguration struct {
+type ServiceConfiguration struct {
 	Name            string
-	Pods            []KubernetesPodConfiguartion
+	Pods            []PodConfiguration
 	ProcessorConfig ProcessorConfiguration
 }
 
-type KubernetesPodConfiguartion struct {
+type PodConfiguration struct {
 	Name        string
 	Address     string
 	Enabled     bool
@@ -188,16 +176,26 @@ type KubernetesPodConfiguartion struct {
 	Timeout     int
 }
 
-type ServiceConfiguration struct {
-	Name            string
-	PingConfigs     []PingConfiguration
-	ProcessorConfig ProcessorConfiguration
-}
+func (p PodConfiguration) String() string {
 
+	//	{
+	//       "Name": "calico-kube-controllers-748bcb7bb-pk565",
+	//       "Address": "10.42.219.56",
+	//       "Enabled": true,
+	//       "Periodicity": 5,
+	//       "Timeout": 5000
+	//      }
+	enabledString := "DISABLED"
+	if p.Enabled {
+		enabledString = "ENABLED"
+	}
+	ret := p.Name + " " + p.Address + " " + enabledString + " " + string(p.Periodicity) + " " + string(p.Timeout)
+	return ret
+}
 func (sc ServiceConfiguration) String() string {
 
 	ret := ""
-	for _, curPingConfig := range sc.PingConfigs {
+	for _, curPingConfig := range sc.Pods {
 		ret += curPingConfig.String()
 	}
 	return ret

@@ -45,7 +45,6 @@ func (spm PingMethod) Ping() (interfaces.IPingResponse, error) {
 
 	if spm.Timeout > 0 {
 		conn, err := net.DialTimeout(spm.Method, spm.Target, time.Duration(duration))
-
 		ret.Timestamp = time.Now()
 		ret.Success = (conn != nil)
 
