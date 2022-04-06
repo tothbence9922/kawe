@@ -15,7 +15,10 @@ type HttpServer struct {
 }
 
 func api(w http.ResponseWriter, req *http.Request) {
-	outJson, _ := json.Marshal(aggregator.GetInstance().Results)
+	ag := aggregator.GetInstance()
+	ag.Lock()
+	defer ag.Unlock()
+	outJson, _ := json.Marshal(ag.Results)
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Allow", http.MethodGet)

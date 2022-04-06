@@ -12,13 +12,15 @@ import (
 )
 
 type PingService struct {
+	sync.Mutex
+
 	methods   []interfaces.IPingMethod
 	Name      string
 	Processor processorInterfaces.IProcessor
 	Result    interfaces.IPingResult
 }
 
-func (sps PingService) String() string {
+func (sps *PingService) String() string {
 
 	var ret string
 
@@ -45,8 +47,10 @@ func (sps *PingService) StartMethod(wg *sync.WaitGroup, method interfaces.IPingM
 		for true {
 			pingResponse, error := method.Ping()
 			if error == nil {
+				sps.Lock()
 				sps.Result.AddResponse(pingResponse)
 				processor.ProcessData(sps.Result)
+				sps.Unlock()
 			}
 			time.Sleep(time.Second * time.Duration(method.GetPeriodicity()))
 		}
@@ -54,7 +58,6 @@ func (sps *PingService) StartMethod(wg *sync.WaitGroup, method interfaces.IPingM
 }
 
 func (sps *PingService) StartMethods(wg *sync.WaitGroup) {
-
 	for _, method := range sps.methods {
 		sps.StartMethod(wg, method)
 	}

@@ -29,7 +29,13 @@ func (spr *PingResult) AddResponse(newResponse interfaces.IPingResponse) {
 	spr.Lock()
 	defer spr.Unlock()
 
-	spr.Responses[newResponse.GetTarget()] = newResponse
+	m := make(map[string](interfaces.IPingResponse), len(spr.Responses))
+	for k, v := range spr.Responses {
+		m[k] = v
+	}
+
+	m[newResponse.GetTarget()] = newResponse
+	spr.Responses = m
 }
 
 func (spr *PingResult) GetServiceName() string {

@@ -5,19 +5,19 @@ import (
 	pingInterfaces "github.com/tothbence9922/kawe/internal/ping/interfaces"
 )
 
-type AvailabilityProcessor struct {
+type UnitProcessor struct {
 	Threshold float32
 }
 
-func (ap *AvailabilityProcessor) ProcessData(result pingInterfaces.IPingResult) {
+func (ap *UnitProcessor) ProcessData(result pingInterfaces.IPingResult) {
 
-	processedData := new(AvailabilityProcessedData)
+	processedData := new(UnitProcessedData)
 	processedData.Result = result
 	processedData.Threshold = float32(ap.Threshold)
 
 	responses := result.GetResponses()
 	totalCount := 0
-	successCount := 0
+	successCount := float32(0)
 
 	for _, value := range responses {
 		totalCount++
@@ -26,11 +26,10 @@ func (ap *AvailabilityProcessor) ProcessData(result pingInterfaces.IPingResult) 
 		}
 	}
 
-	percentage := ((float32(successCount) / float32(totalCount)) * float32(100))
-	processedData.Percentage = percentage
+	processedData.AvailableUnits = successCount
 
 	processedData.Available = false
-	if processedData.Threshold <= processedData.Percentage {
+	if processedData.Threshold <= processedData.AvailableUnits {
 		processedData.Available = true
 	}
 

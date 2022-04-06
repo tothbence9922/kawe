@@ -14,12 +14,18 @@ type Aggregator struct {
 	Results map[string](processorInterfaces.IProcessedData)
 }
 
-var aggregatorInstance *Aggregator
+var (
+	aggregatorInstance *Aggregator
+	initLock           sync.Mutex
+)
 
 func GetInstance() *Aggregator {
+	initLock.Lock()
+	defer initLock.Unlock()
 
 	if aggregatorInstance == nil {
 		aggregatorInstance = new(Aggregator)
+
 		aggregatorInstance.Channel = make(chan processorInterfaces.IProcessedData)
 		aggregatorInstance.Results = make(map[string](processorInterfaces.IProcessedData))
 	}
@@ -44,7 +50,14 @@ func (a *Aggregator) AddResult(newResult processorInterfaces.IProcessedData) {
 
 	newResultMetricName := strings.ReplaceAll(newResult.GetServiceName(), "-", "_")
 
-	GetInstance().Results[newResultMetricName] = newResult
+	m := make(map[string](processorInterfaces.IProcessedData), len(a.Results))
+	for k, v := range a.Results {
+		m[k] = v
+	}
+
+	m[newResultMetricName] = newResult
+
+	a.Results = m
 }
 
 func Start(wg *sync.WaitGroup) {
@@ -54,8 +67,9 @@ func Start(wg *sync.WaitGroup) {
 		defer wg.Done()
 
 		for true {
-			newResult := <-GetInstance().Channel
-			GetInstance().AddResult(newResult)
+			aggregator := GetInstance()
+			newResult := <-aggregator.Channel
+			aggregator.AddResult(newResult)
 		}
 	}()
 	fmt.Println("Aggregator started")

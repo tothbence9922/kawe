@@ -56,8 +56,10 @@ func (ps *PrometheusServer) RecordMetrics(processedData map[string]processor.IPr
 func (ps PrometheusServer) Serve(wg *sync.WaitGroup) {
 
 	wg.Add(1)
-
-	processedData := aggregator.GetInstance().Results
+	ag := aggregator.GetInstance()
+	ag.Lock()
+	defer ag.Unlock()
+	processedData := ag.Results
 	go func() {
 		defer wg.Done()
 
