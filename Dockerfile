@@ -11,7 +11,7 @@ RUN go env -w GO111MODULE=auto
 RUN go mod download
 
 COPY . .
-RUN ls -la
+RUN echo "{}" > /config.json
 
 RUN go build -o /bin/main ./cmd/kawe/main.go
 
