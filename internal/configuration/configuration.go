@@ -189,7 +189,7 @@ func (p PodConfiguration) String() string {
 	if p.Enabled {
 		enabledString = "ENABLED"
 	}
-	ret := p.Name + " " + p.Address + " " + enabledString + " " + string(p.Periodicity) + " " + string(p.Timeout)
+	ret := p.Name + " " + p.Address + " " + enabledString + " " + fmt.Sprint(p.Periodicity) + " " + fmt.Sprint(p.Timeout)
 	return ret
 }
 func (sc ServiceConfiguration) String() string {
