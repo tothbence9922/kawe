@@ -2,6 +2,7 @@ package aggregator
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 
 	processorInterfaces "github.com/tothbence9922/kawe/internal/processor/interfaces"
@@ -13,12 +14,18 @@ type Aggregator struct {
 	Results map[string](processorInterfaces.IProcessedData)
 }
 
-var aggregatorInstance *Aggregator
+var (
+	aggregatorInstance *Aggregator
+	initLock           sync.Mutex
+)
 
 func GetInstance() *Aggregator {
+	initLock.Lock()
+	defer initLock.Unlock()
 
 	if aggregatorInstance == nil {
 		aggregatorInstance = new(Aggregator)
+
 		aggregatorInstance.Channel = make(chan processorInterfaces.IProcessedData)
 		aggregatorInstance.Results = make(map[string](processorInterfaces.IProcessedData))
 	}
@@ -28,27 +35,42 @@ func GetInstance() *Aggregator {
 
 func (a *Aggregator) GetResults() map[string](processorInterfaces.IProcessedData) {
 
-	return a.Results
+	a.Lock()
+	defer a.Unlock()
+	m := make(map[string](processorInterfaces.IProcessedData), len(a.Results))
+	for k, v := range a.Results {
+		m[k] = v
+	}
+	return m
 }
 
 func (a *Aggregator) AddResult(newResult processorInterfaces.IProcessedData) {
-
 	a.Lock()
 	defer a.Unlock()
 
-	GetInstance().Results[newResult.GetServiceName()] = newResult
+	newResultMetricName := strings.ReplaceAll(newResult.GetServiceName(), "-", "_")
+
+	m := make(map[string](processorInterfaces.IProcessedData), len(a.Results))
+	for k, v := range a.Results {
+		m[k] = v
+	}
+
+	m[newResultMetricName] = newResult
+
+	a.Results = m
 }
 
 func Start(wg *sync.WaitGroup) {
 
 	wg.Add(1)
-	go func(inChannel <-chan (processorInterfaces.IProcessedData)) {
+	go func() {
 		defer wg.Done()
 
 		for true {
-			newResult := <-inChannel
-			GetInstance().AddResult(newResult)
+			aggregator := GetInstance()
+			newResult := <-aggregator.Channel
+			aggregator.AddResult(newResult)
 		}
-	}(GetInstance().Channel)
+	}()
 	fmt.Println("Aggregator started")
 }

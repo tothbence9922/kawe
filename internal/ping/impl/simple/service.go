@@ -12,13 +12,15 @@ import (
 )
 
 type PingService struct {
+	sync.Mutex
+
 	methods   []interfaces.IPingMethod
 	Name      string
 	Processor processorInterfaces.IProcessor
 	Result    interfaces.IPingResult
 }
 
-func (sps PingService) String() string {
+func (sps *PingService) String() string {
 
 	var ret string
 
@@ -33,21 +35,22 @@ func (sps *PingService) Configure(config configuration.ServiceConfiguration, pro
 	sps.Name = config.Name
 	sps.Processor = processor
 	sps.Result = &PingResult{ServiceName: sps.Name, Responses: make(map[string](interfaces.IPingResponse))}
-	for _, pingConfig := range config.PingConfigs {
-		sps.methods = append(sps.methods, PingMethod{Target: pingConfig.Target, Timeout: pingConfig.Timeout, Method: "tcp", Periodicity: pingConfig.Periodicity})
+	for _, pingConfig := range config.Pods {
+		sps.methods = append(sps.methods, PingMethod{Target: pingConfig.Address + ":80", Timeout: pingConfig.Timeout, Method: "tcp", Periodicity: pingConfig.Periodicity})
 	}
 }
 
 func (sps *PingService) StartMethod(wg *sync.WaitGroup, method interfaces.IPingMethod) {
-
+	wg.Add(1)
 	go func(method interfaces.IPingMethod, processor processorInterfaces.IProcessor) {
-
 		defer wg.Done()
 		for true {
 			pingResponse, error := method.Ping()
 			if error == nil {
+				sps.Lock()
 				sps.Result.AddResponse(pingResponse)
 				processor.ProcessData(sps.Result)
+				sps.Unlock()
 			}
 			time.Sleep(time.Second * time.Duration(method.GetPeriodicity()))
 		}
@@ -55,7 +58,6 @@ func (sps *PingService) StartMethod(wg *sync.WaitGroup, method interfaces.IPingM
 }
 
 func (sps *PingService) StartMethods(wg *sync.WaitGroup) {
-
 	for _, method := range sps.methods {
 		sps.StartMethod(wg, method)
 	}
@@ -63,14 +65,16 @@ func (sps *PingService) StartMethods(wg *sync.WaitGroup) {
 
 func Start(wg *sync.WaitGroup) {
 
-	for _, serviceConfig := range configuration.GetInstance().ServiceConfigs {
-		wg.Add(1)
+	for _, namespaceConfig := range configuration.GetInstance().EndpointConfigs.Namespaces {
+		for _, serviceConfig := range namespaceConfig.Services {
 
-		service := new(PingService)
-		curProcessor := processor.GetProcessor(serviceConfig.ProcessorConfig)
+			service := new(PingService)
+			curProcessor := processor.GetProcessor(serviceConfig.ProcessorConfig)
 
-		service.Configure(serviceConfig, curProcessor)
-		service.StartMethods(wg)
+			service.Configure(serviceConfig, curProcessor)
+			service.StartMethods(wg)
+		}
+		// TODO ping pods without services too
 	}
 	fmt.Println("Processors started")
 	fmt.Println("Services started")

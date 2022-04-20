@@ -9,14 +9,19 @@ import (
 )
 
 type PingResult struct {
-	sync.Mutex
+	sync.RWMutex
 	Responses   map[string](interfaces.IPingResponse)
 	ServiceName string
 }
 
 func (spr *PingResult) GetResponses() map[string](interfaces.IPingResponse) {
-
-	return spr.Responses
+	spr.Lock()
+	defer spr.Unlock()
+	m := make(map[string](interfaces.IPingResponse), len(spr.Responses))
+	for k, v := range spr.Responses {
+		m[k] = v
+	}
+	return m
 }
 
 func (spr *PingResult) AddResponse(newResponse interfaces.IPingResponse) {
@@ -24,12 +29,18 @@ func (spr *PingResult) AddResponse(newResponse interfaces.IPingResponse) {
 	spr.Lock()
 	defer spr.Unlock()
 
-	spr.Responses[newResponse.GetTarget()] = newResponse
+	m := make(map[string](interfaces.IPingResponse), len(spr.Responses))
+	for k, v := range spr.Responses {
+		m[k] = v
+	}
+
+	m[newResponse.GetTarget()] = newResponse
+	spr.Responses = m
 }
 
 func (spr *PingResult) GetServiceName() string {
-
-	return spr.ServiceName
+	ret := spr.ServiceName
+	return ret
 }
 
 func (spr *PingResult) String() string {
