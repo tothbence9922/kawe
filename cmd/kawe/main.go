@@ -57,6 +57,7 @@ func main() {
 		}
 	}()
 	err = watcher.Add("/config.json")
+	err = watcher.Add("/app/mnt/config.json")
 
 	if err != nil {
 		log.Fatal(err)
