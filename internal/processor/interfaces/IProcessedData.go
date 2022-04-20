@@ -6,5 +6,5 @@ type IProcessedData interface {
 	GetServiceName() string
 	GetAvailability() bool
 	GetThreshold() float32
-	GetPercentage() float32
+	GetValue() float32
 }

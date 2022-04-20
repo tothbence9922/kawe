@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/tothbence9922/kawe/internal/aggregator"
 )
@@ -14,7 +15,10 @@ type HttpServer struct {
 }
 
 func api(w http.ResponseWriter, req *http.Request) {
-	outJson, _ := json.Marshal(aggregator.GetInstance().Results)
+	ag := aggregator.GetInstance()
+	ag.Lock()
+	defer ag.Unlock()
+	outJson, _ := json.Marshal(ag.Results)
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Allow", http.MethodGet)
@@ -24,6 +28,9 @@ func api(w http.ResponseWriter, req *http.Request) {
 func (hs HttpServer) Serve(wg *sync.WaitGroup) {
 	wg.Add(1)
 	go func() {
+		server := new(http.Server)
+		server.ReadTimeout = 5 * time.Second
+		server.WriteTimeout = 5 * time.Second
 		defer wg.Done()
 		http.HandleFunc("/api", api)
 
