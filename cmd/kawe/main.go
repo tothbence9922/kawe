@@ -42,7 +42,6 @@ func main() {
 			select {
 			case event, ok := <-watcher.Events:
 				if !ok {
-					fmt.Println("fasz")
 					return
 				}
 				fmt.Println("event:", event)
@@ -51,8 +50,6 @@ func main() {
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
-					fmt.Println("fasz2")
-
 					return
 				}
 				fmt.Println("error:", err)
