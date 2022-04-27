@@ -10,7 +10,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/tothbence9922/kawe/internal/aggregator"
-	processor "github.com/tothbence9922/kawe/internal/processor/interfaces"
 )
 
 type PrometheusServer struct {
@@ -18,14 +17,18 @@ type PrometheusServer struct {
 	Metrics map[string]prometheus.Gauge
 }
 
-func (ps *PrometheusServer) Init(processedData map[string]processor.IProcessedData) {
+func (ps *PrometheusServer) Init() {
 	ps.Metrics = make(map[string](prometheus.Gauge))
 }
 
-func (ps *PrometheusServer) CalcMetrics(processedData map[string]processor.IProcessedData) {
-
+func (ps *PrometheusServer) CalcMetrics() {
+	ag := aggregator.GetInstance()
+	ag.Lock()
+	defer ag.Unlock()
+	processedData := ag.Results
 	if processedData != nil {
 		for key, value := range processedData {
+
 			if ps.Metrics[key] == nil {
 				ps.Metrics[key] = promauto.NewGauge(
 					prometheus.GaugeOpts{
@@ -43,11 +46,11 @@ func (ps *PrometheusServer) CalcMetrics(processedData map[string]processor.IProc
 	}
 }
 
-func (ps *PrometheusServer) RecordMetrics(processedData map[string]processor.IProcessedData) {
+func (ps *PrometheusServer) RecordMetrics() {
 
 	go func() {
 		for {
-			ps.CalcMetrics(processedData)
+			ps.CalcMetrics()
 			time.Sleep(2 * time.Second)
 		}
 	}()
@@ -56,16 +59,13 @@ func (ps *PrometheusServer) RecordMetrics(processedData map[string]processor.IPr
 func (ps PrometheusServer) Serve(wg *sync.WaitGroup) {
 
 	wg.Add(1)
-	ag := aggregator.GetInstance()
-	ag.Lock()
-	defer ag.Unlock()
-	processedData := ag.Results
+
 	go func() {
 		defer wg.Done()
 
-		ps.Init(processedData)
+		ps.Init()
 
-		ps.RecordMetrics(processedData)
+		ps.RecordMetrics()
 
 		http.Handle("/metrics", promhttp.Handler())
 
