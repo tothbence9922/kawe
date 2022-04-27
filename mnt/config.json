@@ -1,3 +1,831 @@
 {
-    
+ "EndpointConfigs": {
+  "Namespaces": [
+   {
+    "Name": "calico-system",
+    "Services": [
+     {
+      "Name": "calico-kube-controllers-metrics",
+      "Pods": [
+       {
+        "Name": "calico-kube-controllers-748bcb7bb-pk565",
+        "Address": "10.42.219.59",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "calico-typha",
+      "Pods": [
+       {
+        "Name": "calico-node-89wp2",
+        "Address": "10.21.18.11",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "calico-typha-795d5c5864-6mjvr",
+        "Address": "10.21.18.11",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "calico-node-mg5d4",
+        "Address": "10.21.18.12",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "calico-typha-795d5c5864-jn4l6",
+        "Address": "10.21.18.12",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "calico-node-rrf6b",
+        "Address": "10.21.18.13",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "calico-typha-795d5c5864-c46db",
+        "Address": "10.21.18.13",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     }
+    ],
+    "Pods": [
+     {
+      "Name": "calico-node-5j9f2",
+      "Address": "10.21.18.21",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     },
+     {
+      "Name": "calico-node-s9j2p",
+      "Address": "10.21.18.23",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     }
+    ]
+   },
+   {
+    "Name": "cattle-fleet-system",
+    "Services": [],
+    "Pods": [
+     {
+      "Name": "fleet-agent-8fcfb99b6-n8rt7",
+      "Address": "10.42.170.230",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     }
+    ]
+   },
+   {
+    "Name": "cattle-impersonation-system",
+    "Services": [],
+    "Pods": []
+   },
+   {
+    "Name": "cattle-system",
+    "Services": [
+     {
+      "Name": "cattle-cluster-agent",
+      "Pods": [
+       {
+        "Name": "cattle-cluster-agent-86d8bd4ddf-dbgvr",
+        "Address": "10.42.128.206",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "cattle-cluster-agent-86d8bd4ddf-sqj57",
+        "Address": "10.42.170.252",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     }
+    ],
+    "Pods": [
+     {
+      "Name": "system-upgrade-controller-5b6457d644-dnxww",
+      "Address": "10.42.152.41",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     }
+    ]
+   },
+   {
+    "Name": "default",
+    "Services": [
+     {
+      "Name": "kubernetes",
+      "Pods": [],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     }
+    ],
+    "Pods": []
+   },
+   {
+    "Name": "kube-node-lease",
+    "Services": [],
+    "Pods": []
+   },
+   {
+    "Name": "kube-public",
+    "Services": [],
+    "Pods": []
+   },
+   {
+    "Name": "kube-system",
+    "Services": [
+     {
+      "Name": "rke2-coredns-rke2-coredns",
+      "Pods": [
+       {
+        "Name": "rke2-coredns-rke2-coredns-b77b758b9-nxkdj",
+        "Address": "10.42.128.204",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "rke2-ingress-nginx-controller-admission",
+      "Pods": [
+       {
+        "Name": "cloud-controller-manager-master1.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.11",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "etcd-master1.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.11",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "kube-apiserver-master1.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.11",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "kube-controller-manager-master1.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.11",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "kube-proxy-master1.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.11",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "kube-scheduler-master1.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.11",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "node-shell-54285b92-c95d-4bf2-ad27-482e19d4edad",
+        "Address": "10.21.18.11",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "rke2-ingress-nginx-controller-97v9r",
+        "Address": "10.21.18.11",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "cloud-controller-manager-master2.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.12",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "etcd-master2.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.12",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "helm-install-rke2-calico-ftsrz",
+        "Address": "10.21.18.12",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "kube-apiserver-master2.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.12",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "kube-controller-manager-master2.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.12",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "kube-proxy-master2.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.12",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "kube-scheduler-master2.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.12",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "rke2-ingress-nginx-controller-k487h",
+        "Address": "10.21.18.12",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "cloud-controller-manager-master3.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.13",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "etcd-master3.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.13",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "kube-apiserver-master3.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.13",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "kube-controller-manager-master3.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.13",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "kube-proxy-master3.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.13",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "kube-scheduler-master3.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.13",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "rke2-ingress-nginx-controller-p67s5",
+        "Address": "10.21.18.13",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "kube-proxy-worker1.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.21",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "node-shell-0981ff9e-70fd-48ac-bdc4-0498f739a7d2",
+        "Address": "10.21.18.21",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "node-shell-626755bd-550d-4e85-bfbd-40279768efef",
+        "Address": "10.21.18.21",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "node-shell-666f0fa2-7a0f-4180-a2ec-e7a41de19950",
+        "Address": "10.21.18.21",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "node-shell-a804aa96-c508-443e-b2f9-6cbc41f52379",
+        "Address": "10.21.18.21",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "node-shell-df93cef8-5b3d-4dcb-ab24-a1ee4d8b28b3",
+        "Address": "10.21.18.21",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "node-shell-f8179945-64b0-4e44-8a2c-696708ea2a4b",
+        "Address": "10.21.18.21",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "rke2-ingress-nginx-controller-qnjb9",
+        "Address": "10.21.18.21",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "kube-proxy-worker3.kcl018.cl01.ber.dt",
+        "Address": "10.21.18.23",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       },
+       {
+        "Name": "rke2-ingress-nginx-controller-xzlhb",
+        "Address": "10.21.18.23",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "rke2-metrics-server",
+      "Pods": [
+       {
+        "Name": "rke2-metrics-server-8574659c85-b6dlp",
+        "Address": "10.42.170.229",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     }
+    ],
+    "Pods": [
+     {
+      "Name": "helm-install-rke2-ingress-nginx-rblxt",
+      "Address": "10.42.128.213",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     }
+    ]
+   },
+   {
+    "Name": "local",
+    "Services": [],
+    "Pods": []
+   },
+   {
+    "Name": "local-path-storage",
+    "Services": [],
+    "Pods": [
+     {
+      "Name": "local-path-provisioner-6b874bd547-brdn6",
+      "Address": "10.42.170.239",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     }
+    ]
+   },
+   {
+    "Name": "qdak",
+    "Services": [
+     {
+      "Name": "keycloak",
+      "Pods": [
+       {
+        "Name": "keycloak-0",
+        "Address": "10.42.170.224",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "keycloak-headless",
+      "Pods": [
+       {
+        "Name": "keycloak-0",
+        "Address": "10.42.170.224",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "keycloak-postgresql",
+      "Pods": [
+       {
+        "Name": "keycloak-postgresql-0",
+        "Address": "10.42.170.245",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "keycloak-postgresql-headless",
+      "Pods": [
+       {
+        "Name": "keycloak-postgresql-0",
+        "Address": "10.42.170.245",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "mysql",
+      "Pods": [
+       {
+        "Name": "mysql-85d66f94fc-gfcfj",
+        "Address": "10.42.170.227",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "phpmyadmin",
+      "Pods": [
+       {
+        "Name": "phpmyadmin-7896c6b7b-5f5s8",
+        "Address": "10.42.170.237",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "qdak-cart-rest-proxy-service",
+      "Pods": [
+       {
+        "Name": "qdak-cart-rest-proxy-68f674b9dd-ntfcg",
+        "Address": "10.42.128.4",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "qdak-customer-frontend-service",
+      "Pods": [
+       {
+        "Name": "qdak-customer-frontend-8466dc7885-8bqfm",
+        "Address": "10.42.128.47",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "qdak-delivery-rest-proxy-service",
+      "Pods": [
+       {
+        "Name": "qdak-delivery-rest-proxy-7b69d674f6-ptn8d",
+        "Address": "10.42.170.236",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "qdak-image-rest-proxy-service",
+      "Pods": [],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "qdak-order-rest-proxy-service",
+      "Pods": [
+       {
+        "Name": "qdak-order-rest-proxy-56884588ff-bkptm",
+        "Address": "10.42.128.28",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "qdak-payment-rest-proxy-service",
+      "Pods": [
+       {
+        "Name": "qdak-payment-rest-proxy-85bfffb56-zrn7z",
+        "Address": "10.42.128.42",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "qdak-product-rest-proxy-service",
+      "Pods": [
+       {
+        "Name": "qdak-product-rest-proxy-765666979-dmh2q",
+        "Address": "10.42.128.14",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "rabbitmq",
+      "Pods": [
+       {
+        "Name": "rabbitmq-84f6974cb6-mgl6n",
+        "Address": "10.42.170.232",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "rabbitmq-nodes",
+      "Pods": [],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "vendor-admin-frontend-service",
+      "Pods": [
+       {
+        "Name": "qdak-vendor-admin-frontend-59748887bd-lq9qf",
+        "Address": "10.42.128.27",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "zipkin-trace",
+      "Pods": [
+       {
+        "Name": "zipkin-trace-69d9fdf8cf-c6t2l",
+        "Address": "10.42.170.243",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     }
+    ],
+    "Pods": [
+     {
+      "Name": "kawe-7575686f6f-h8hbz",
+      "Address": "10.42.128.44",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     },
+     {
+      "Name": "qdak-cart-service-api-7645d6bcb7-jn64v",
+      "Address": "10.42.128.9",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     },
+     {
+      "Name": "qdak-delivery-service-api-7dd58b4bbf-jhkbz",
+      "Address": "10.42.170.228",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     },
+     {
+      "Name": "qdak-image-service-api-694466766f-lnwmz",
+      "Address": "10.42.170.247",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     },
+     {
+      "Name": "qdak-image-service-api-694466766f-plv4v",
+      "Address": "10.42.170.241",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     },
+     {
+      "Name": "qdak-image-service-api-694466766f-zcwlx",
+      "Address": "10.42.170.226",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     },
+     {
+      "Name": "qdak-order-service-api-6bc6b69f85-pfc5r",
+      "Address": "10.42.128.31",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     },
+     {
+      "Name": "qdak-payment-service-api-56dbc47d95-6k9kj",
+      "Address": "10.42.128.43",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     },
+     {
+      "Name": "qdak-product-service-api-54dbccf4b6-km65v",
+      "Address": "10.42.128.41",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     }
+    ]
+   },
+   {
+    "Name": "rabbitmq-system",
+    "Services": [],
+    "Pods": []
+   },
+   {
+    "Name": "tigera-operator",
+    "Services": [],
+    "Pods": [
+     {
+      "Name": "tigera-operator-698786489c-frplh",
+      "Address": "10.21.18.12",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     }
+    ]
+   }
+  ]
+ },
+ "ServerConfigs": [
+  {
+   "Type": "HTTP",
+   "Port": 8080
+  },
+  {
+   "Type": "PROMETHEUS",
+   "Port": 8080
+  }
+ ]
 }
