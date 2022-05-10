@@ -28,7 +28,6 @@ func (ps *PrometheusServer) CalcMetrics() {
 	processedData := ag.Results
 	if processedData != nil {
 		for key, value := range processedData {
-
 			if ps.Metrics[key] == nil {
 				ps.Metrics[key] = promauto.NewGauge(
 					prometheus.GaugeOpts{

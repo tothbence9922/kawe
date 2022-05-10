@@ -48,7 +48,7 @@ func (a *Aggregator) AddResult(newResult processorInterfaces.IProcessedData) {
 	a.Lock()
 	defer a.Unlock()
 
-	newResultMetricName := "kawe_" + strings.ReplaceAll(newResult.GetServiceName(), "-", "_")
+	newResultMetricName := strings.ReplaceAll(newResult.GetServiceName(), "-", "_")
 
 	m := make(map[string](processorInterfaces.IProcessedData), len(a.Results))
 	for k, v := range a.Results {
