@@ -1,4 +1,14 @@
 {
+ "ServerConfigs": [
+  {
+   "Type": "HTTP",
+   "Port": 8080
+  },
+  {
+   "Type": "PROMETHEUS",
+   "Port": 8080
+  }
+ ],
  "EndpointConfigs": {
   "Namespaces": [
    {
@@ -477,7 +487,15 @@
     "Services": [
      {
       "Name": "kawe-service",
-      "Pods": [],
+      "Pods": [
+       {
+        "Name": "kawe-6b8485846-7ntf2",
+        "Address": "10.42.128.114",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
       "ProcessorConfig": {
        "Type": "",
        "Params": null
@@ -1115,15 +1133,5 @@
     ]
    }
   ]
- },
- "ServerConfigs": [
-  {
-   "Type": "HTTP",
-   "Port": 8080
-  },
-  {
-   "Type": "PROMETHEUS",
-   "Port": 8080
-  }
- ]
+ }
 }
