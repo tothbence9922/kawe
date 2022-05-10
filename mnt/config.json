@@ -1,4 +1,14 @@
 {
+ "ServerConfigs": [
+  {
+   "Type": "HTTP",
+   "Port": 8080
+  },
+  {
+   "Type": "PROMETHEUS",
+   "Port": 8080
+  }
+ ],
  "EndpointConfigs": {
   "Namespaces": [
    {
@@ -476,6 +486,22 @@
     "Name": "qdak",
     "Services": [
      {
+      "Name": "kawe-service",
+      "Pods": [
+       {
+        "Name": "kawe-6b8485846-7ntf2",
+        "Address": "10.42.128.114",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
       "Name": "keycloak",
       "Pods": [
        {
@@ -543,8 +569,8 @@
       "Name": "mysql",
       "Pods": [
        {
-        "Name": "mysql-85d66f94fc-gfcfj",
-        "Address": "10.42.170.227",
+        "Name": "mysql-c6f7dddbd-sffcq",
+        "Address": "10.42.170.28",
         "Enabled": true,
         "Periodicity": 5,
         "Timeout": 5000
@@ -591,8 +617,8 @@
       "Name": "qdak-customer-frontend-service",
       "Pods": [
        {
-        "Name": "qdak-customer-frontend-8466dc7885-8bqfm",
-        "Address": "10.42.128.47",
+        "Name": "qdak-customer-frontend-7b754444b6-cfblh",
+        "Address": "10.42.170.53",
         "Enabled": true,
         "Periodicity": 5,
         "Timeout": 5000
@@ -631,8 +657,8 @@
       "Name": "qdak-order-rest-proxy-service",
       "Pods": [
        {
-        "Name": "qdak-order-rest-proxy-56884588ff-bkptm",
-        "Address": "10.42.128.28",
+        "Name": "qdak-order-rest-proxy-79d67dfd96-n5x4q",
+        "Address": "10.42.128.92",
         "Enabled": true,
         "Periodicity": 5,
         "Timeout": 5000
@@ -647,8 +673,8 @@
       "Name": "qdak-payment-rest-proxy-service",
       "Pods": [
        {
-        "Name": "qdak-payment-rest-proxy-85bfffb56-zrn7z",
-        "Address": "10.42.128.42",
+        "Name": "qdak-payment-rest-proxy-64bd9bdbb4-sqtpn",
+        "Address": "10.42.128.109",
         "Enabled": true,
         "Periodicity": 5,
         "Timeout": 5000
@@ -663,8 +689,8 @@
       "Name": "qdak-product-rest-proxy-service",
       "Pods": [
        {
-        "Name": "qdak-product-rest-proxy-765666979-dmh2q",
-        "Address": "10.42.128.14",
+        "Name": "qdak-product-rest-proxy-6c45bf4cc8-vtph7",
+        "Address": "10.42.128.90",
         "Enabled": true,
         "Periodicity": 5,
         "Timeout": 5000
@@ -703,8 +729,8 @@
       "Name": "vendor-admin-frontend-service",
       "Pods": [
        {
-        "Name": "qdak-vendor-admin-frontend-59748887bd-lq9qf",
-        "Address": "10.42.128.27",
+        "Name": "qdak-vendor-admin-frontend-589dc76fb7-6ss48",
+        "Address": "10.42.128.77",
         "Enabled": true,
         "Periodicity": 5,
         "Timeout": 5000
@@ -734,13 +760,6 @@
     ],
     "Pods": [
      {
-      "Name": "kawe-7575686f6f-h8hbz",
-      "Address": "10.42.128.44",
-      "Enabled": true,
-      "Periodicity": 5,
-      "Timeout": 5000
-     },
-     {
       "Name": "qdak-cart-service-api-7645d6bcb7-jn64v",
       "Address": "10.42.128.9",
       "Enabled": true,
@@ -755,43 +774,340 @@
       "Timeout": 5000
      },
      {
-      "Name": "qdak-image-service-api-694466766f-lnwmz",
-      "Address": "10.42.170.247",
+      "Name": "qdak-image-service-api-645b7678b9-6mdm7",
+      "Address": "10.42.170.31",
       "Enabled": true,
       "Periodicity": 5,
       "Timeout": 5000
      },
      {
-      "Name": "qdak-image-service-api-694466766f-plv4v",
-      "Address": "10.42.170.241",
+      "Name": "qdak-image-service-api-645b7678b9-dnmhd",
+      "Address": "10.42.128.99",
       "Enabled": true,
       "Periodicity": 5,
       "Timeout": 5000
      },
      {
-      "Name": "qdak-image-service-api-694466766f-zcwlx",
-      "Address": "10.42.170.226",
+      "Name": "qdak-image-service-api-645b7678b9-hnmgh",
+      "Address": "10.42.170.35",
       "Enabled": true,
       "Periodicity": 5,
       "Timeout": 5000
      },
      {
-      "Name": "qdak-order-service-api-6bc6b69f85-pfc5r",
-      "Address": "10.42.128.31",
+      "Name": "qdak-order-service-api-85c8f84788-tz55j",
+      "Address": "10.42.170.14",
       "Enabled": true,
       "Periodicity": 5,
       "Timeout": 5000
      },
      {
-      "Name": "qdak-payment-service-api-56dbc47d95-6k9kj",
-      "Address": "10.42.128.43",
+      "Name": "qdak-payment-service-api-7d7747fdcd-l82gh",
+      "Address": "10.42.128.113",
       "Enabled": true,
       "Periodicity": 5,
       "Timeout": 5000
      },
      {
-      "Name": "qdak-product-service-api-54dbccf4b6-km65v",
-      "Address": "10.42.128.41",
+      "Name": "qdak-product-service-api-7dc6c785f-d9545",
+      "Address": "10.42.128.89",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     }
+    ]
+   },
+   {
+    "Name": "qdak-test",
+    "Services": [
+     {
+      "Name": "keycloak",
+      "Pods": [
+       {
+        "Name": "keycloak-0",
+        "Address": "10.42.128.80",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "keycloak-headless",
+      "Pods": [
+       {
+        "Name": "keycloak-0",
+        "Address": "10.42.128.80",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "keycloak-postgresql",
+      "Pods": [
+       {
+        "Name": "keycloak-postgresql-0",
+        "Address": "10.42.128.76",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "keycloak-postgresql-hl",
+      "Pods": [
+       {
+        "Name": "keycloak-postgresql-0",
+        "Address": "10.42.128.76",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "mysql",
+      "Pods": [
+       {
+        "Name": "mysql-7ff45dc798-9kl4n",
+        "Address": "10.42.128.15",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "phpmyadmin",
+      "Pods": [
+       {
+        "Name": "phpmyadmin-5479b9b857-6q865",
+        "Address": "10.42.128.69",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "qdak-cart-rest-proxy-service",
+      "Pods": [
+       {
+        "Name": "qdak-cart-rest-proxy-bb6c7cd96-bht7h",
+        "Address": "10.42.170.6",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "qdak-customer-frontend-service",
+      "Pods": [
+       {
+        "Name": "qdak-customer-frontend-68d9d7bcbf-6tkx6",
+        "Address": "10.42.128.107",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "qdak-delivery-rest-proxy-service",
+      "Pods": [
+       {
+        "Name": "qdak-delivery-rest-proxy-747f8cfb55-675qw",
+        "Address": "10.42.128.78",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "qdak-image-rest-proxy-service",
+      "Pods": [],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "qdak-order-rest-proxy-service",
+      "Pods": [
+       {
+        "Name": "qdak-order-rest-proxy-68d9d9cf8f-tvrts",
+        "Address": "10.42.128.112",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "qdak-payment-rest-proxy-service",
+      "Pods": [
+       {
+        "Name": "qdak-payment-rest-proxy-86b76b4599-h957k",
+        "Address": "10.42.170.33",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "qdak-product-rest-proxy-service",
+      "Pods": [
+       {
+        "Name": "qdak-product-rest-proxy-5b96fc499b-zzl8n",
+        "Address": "10.42.128.87",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "rabbitmq",
+      "Pods": [
+       {
+        "Name": "rabbitmq-ccd77b6d4-98p97",
+        "Address": "10.42.170.2",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "vendor-admin-frontend-service",
+      "Pods": [
+       {
+        "Name": "qdak-vendor-admin-frontend-745f97bc59-rl5q2",
+        "Address": "10.42.128.105",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     },
+     {
+      "Name": "zipkin-trace",
+      "Pods": [
+       {
+        "Name": "zipkin-trace-7f94f7c9b-fdnf8",
+        "Address": "10.42.128.71",
+        "Enabled": true,
+        "Periodicity": 5,
+        "Timeout": 5000
+       }
+      ],
+      "ProcessorConfig": {
+       "Type": "",
+       "Params": null
+      }
+     }
+    ],
+    "Pods": [
+     {
+      "Name": "qdak-cart-service-api-778784cc6d-4kt2z",
+      "Address": "10.42.170.13",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     },
+     {
+      "Name": "qdak-delivery-service-api-79f5df6ccf-9w5d8",
+      "Address": "10.42.170.9",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     },
+     {
+      "Name": "qdak-image-service-api-6dfc5999f4-8dlbq",
+      "Address": "10.42.170.34",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     },
+     {
+      "Name": "qdak-order-service-api-9cc748cf8-c8kj4",
+      "Address": "10.42.128.104",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     },
+     {
+      "Name": "qdak-payment-service-api-746dd496f5-5zmsd",
+      "Address": "10.42.170.32",
+      "Enabled": true,
+      "Periodicity": 5,
+      "Timeout": 5000
+     },
+     {
+      "Name": "qdak-product-service-api-77fd88ccdf-8jkv5",
+      "Address": "10.42.128.97",
       "Enabled": true,
       "Periodicity": 5,
       "Timeout": 5000
@@ -817,15 +1133,5 @@
     ]
    }
   ]
- },
- "ServerConfigs": [
-  {
-   "Type": "HTTP",
-   "Port": 8080
-  },
-  {
-   "Type": "PROMETHEUS",
-   "Port": 8080
-  }
- ]
+ }
 }
