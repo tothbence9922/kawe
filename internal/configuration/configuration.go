@@ -10,12 +10,13 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
 type Configuration struct {
-	EndpointConfigs EndpointConfiguration
 	ServerConfigs   []ServerConfiguration
+	EndpointConfigs EndpointConfiguration
 }
 
 var configInstance *Configuration
@@ -30,41 +31,64 @@ func GetInstance() *Configuration {
 }
 
 func (cfg *Configuration) GetConfiguration() {
-
-	pwd, _ := os.Getwd()
-	dat, err := os.ReadFile(pwd + "/mnt/config.json")
-
-	if err == nil {
-		json.Unmarshal([]byte(dat), &cfg)
+	var pwd string
+	isDevMode := false
+	if len(os.Args) > 1 {
+		devPtr := flag.Bool("dev", false, "a bool")
+		flag.Parse()
+		isDevMode = *devPtr
 	}
 
-	// Authentication - from outside of the cluster
-	var kubeconfig *string
-	if pwd, _ := os.Getwd(); pwd != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(pwd, "/mnt/kubeConfig.yaml"), "(optional) absolute path to the kubeconfig file")
+	var clientSet *kubernetes.Clientset
+
+	if isDevMode {
+		pwd, _ := os.Getwd()
+		dat, err := os.ReadFile(pwd + "/mnt/config.json")
+
+		if err == nil {
+			json.Unmarshal([]byte(dat), &cfg)
+		}
+
+		// Authentication - from outside of the cluster
+		var kubeconfig *string
+		if pwd, _ := os.Getwd(); pwd != "" {
+			kubeconfig = flag.String("kubeconfig", filepath.Join(pwd, "/mnt/kubeConfig.yaml"), "(optional) absolute path to the kubeconfig file")
+		} else {
+			kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+		}
+		flag.Parse()
+
+		// use the current context in kubeconfig
+		config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		// create the clientSet
+		clientSet, err = kubernetes.NewForConfig(config)
+		if err != nil {
+			panic(err.Error())
+		}
 	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+		// creates the in-cluster config
+		config, err := rest.InClusterConfig()
+		if err != nil {
+			panic(err.Error())
+		}
+		// creates the clientSet
+		clientSet, err = kubernetes.NewForConfig(config)
+		if err != nil {
+			panic(err.Error())
+		}
 	}
-	flag.Parse()
 
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	// create the clientset
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
-	}
 	// Authentication done, client is available
 
 	// Querying the required resources
 	// 	1) namespaces
 	//  2) for each namespace, the services and the pods
 	//  3) for each pod, the annotations so we can see if it is behind a service
-	namespaces, err := clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	namespaces, err := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
 	}
@@ -73,7 +97,7 @@ func (cfg *Configuration) GetConfiguration() {
 	// Iterating through all namespaces, adding services and pods behind services to the configuration
 	for _, namespace := range namespaces.Items {
 		// Getting all pods - including the ones behind services and separate ones aswell.
-		allPods, err := clientset.CoreV1().Pods(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
+		allPods, err := clientSet.CoreV1().Pods(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			panic(err.Error())
 		}
@@ -85,7 +109,7 @@ func (cfg *Configuration) GetConfiguration() {
 		}
 
 		// Using endpoints as "services"
-		endpoints, err := clientset.CoreV1().Endpoints(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
+		endpoints, err := clientSet.CoreV1().Endpoints(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
 
 		serviceConfigurations := []ServiceConfiguration{}
 		for _, endpoint := range endpoints.Items {
