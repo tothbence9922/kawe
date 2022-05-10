@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kawe
+  labels:
+    app: kawe
+spec:
+  strategy:
+    type: RollingUpdate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kawe
+  template:
+    metadata:
+      labels:
+        app: kawe
+    spec:
+      serviceAccountName: kawe-account
+      containers:
+      - name:  kawe
+        image: tothbence9922/kawe:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: kawe-cm
+          mountPath: "/app/mnt"
+      volumes:
+      - name: kawe-cm
+        configMap:
+          name: kawe-configmap
