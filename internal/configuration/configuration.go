@@ -43,12 +43,14 @@ func (cfg *Configuration) GetConfiguration() {
 
 	if isDevMode {
 		pwd, _ := os.Getwd()
-		dat, err := os.ReadFile(pwd + "/mnt/config.json")
+		dat, err := os.ReadFile(filepath.Join(pwd, "/mnt/config.json"))
 
 		if err == nil {
-			json.Unmarshal([]byte(dat), &cfg)
+			err = json.Unmarshal([]byte(dat), &cfg)
 		}
-
+		if err != nil {
+			panic(err.Error())
+		}
 		// Authentication - from outside of the cluster
 		var kubeconfig *string
 		if pwd, _ := os.Getwd(); pwd != "" {
@@ -151,7 +153,7 @@ func (cfg *Configuration) GetConfiguration() {
 	file, err := json.MarshalIndent(newCfg, "", " ")
 
 	pwd, _ = os.Getwd()
-	err = os.WriteFile(pwd+"/mnt/config.json", file, 0644)
+	err = os.WriteFile(filepath.Join(pwd, "/mnt/config.json"), file, 0777)
 
 	json.Unmarshal([]byte(file), &cfg)
 }

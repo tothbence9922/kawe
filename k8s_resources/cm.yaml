@@ -17,4 +17,4 @@ data:
     }
 metadata:
   name: kawe-configmap
-  namespace: default
+  namespace: qdak

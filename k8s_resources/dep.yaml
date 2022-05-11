@@ -1,31 +1,43 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kawe
+  generation: 3
   labels:
     app: kawe
+  name: kawe
+  namespace: qdak
 spec:
-  strategy:
-    type: RollingUpdate
   replicas: 1
   selector:
     matchLabels:
       app: kawe
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
       labels:
         app: kawe
     spec:
-      serviceAccountName: kawe-account
       containers:
-      - name:  kawe
-        image: tothbence9922/kawe:latest
+      - image: tothbence9922/kawe:latest
+        imagePullPolicy: Always
+        name: kawe
         ports:
         - containerPort: 80
+          name: 80tcp
+          protocol: TCP
         volumeMounts:
-        - name: kawe-cm
-          mountPath: "/app/mnt"
+        - mountPath: /app/mnt/config.json
+          name: kawe-cm
+          subPath: config.json
+      restartPolicy: Always
+      serviceAccount: kawe-account
+      serviceAccountName: kawe-account
       volumes:
-      - name: kawe-cm
-        configMap:
+      - configMap:
+          defaultMode: 0777
           name: kawe-configmap
+        name: kawe-cm
