@@ -112,7 +112,9 @@ func (cfg *Configuration) GetConfiguration() {
 
 		// Using endpoints as "services"
 		endpoints, err := clientSet.CoreV1().Endpoints(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
-
+		if err != nil {
+			panic(err.Error())
+		}
 		serviceConfigurations := []ServiceConfiguration{}
 		for _, endpoint := range endpoints.Items {
 			serviceName := endpoint.ObjectMeta.Name
@@ -154,7 +156,7 @@ func (cfg *Configuration) GetConfiguration() {
 
 	pwd, _ = os.Getwd()
 	err = os.WriteFile(filepath.Join(pwd, "/mnt/config.json"), file, 0777)
-
+	fmt.Print(newCfg)
 	json.Unmarshal([]byte(file), &cfg)
 }
 
