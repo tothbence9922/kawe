@@ -29,15 +29,6 @@ spec:
         - containerPort: 80
           name: 80tcp
           protocol: TCP
-        volumeMounts:
-        - mountPath: /app/mnt/config.json
-          name: kawe-cm
-          subPath: config.json
       restartPolicy: Always
       serviceAccount: kawe-account
       serviceAccountName: kawe-account
-      volumes:
-      - configMap:
-          defaultMode: 0777
-          name: kawe-configmap
-        name: kawe-cm
