@@ -17,3 +17,5 @@ mnt/kubeConfig.yaml
 
 # VsCode settings
 .vscode/
+
+.env
