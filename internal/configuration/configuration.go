@@ -53,7 +53,7 @@ func getClientSet(inCluster bool) *kubernetes.Clientset {
 		var kubeconfig *string
 
 		if pwd, _ := os.Getwd(); pwd != "" {
-			kubeconfig = flag.String("kubeconfig", filepath.Join(pwd, "/mnt/kubeConfig.yaml"), "(optional) absolute path to the kubeconfig file")
+			kubeconfig = flag.String("kubeconfig", filepath.Join(pwd, "/k8s_resources/kubeConfig.yaml"), "(optional) absolute path to the kubeconfig file")
 		} else {
 			kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 		}

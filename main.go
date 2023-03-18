@@ -19,6 +19,7 @@ func start(wg *sync.WaitGroup) {
 	// The pinging service starts based on the configuration file
 	simpleService.Start(wg)
 
+	// Servers start based on .env variables
 	server.Start(wg)
 
 	wg.Wait()
