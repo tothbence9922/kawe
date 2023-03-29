@@ -9,3 +9,4 @@ Kubernetes Application Watcher Entity - KAWE
 To run the application locally using the .env file, you can "source" the file via
 
 `set -o allexport && source .env && set +o allexport` command (on mac).
+`export KAWE_HTTP_PORT=8001 && export KAWE_PROMETHEUS_PORT=8002 && go run main.go` command (on windows).

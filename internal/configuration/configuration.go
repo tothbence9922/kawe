@@ -8,7 +8,9 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 
+	"github.com/go-co-op/gocron"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -18,48 +20,30 @@ import (
 type Configuration struct {
 	ServerConfigs   []ServerConfiguration
 	EndpointConfigs EndpointConfiguration
+	scheduler       *gocron.Scheduler
 }
 
-var configInstance *Configuration
+var (
+	configInstance *Configuration
+	kubeconfig     *string
+)
 
 func GetInstance() *Configuration {
 
 	if configInstance == nil {
 		configInstance = new(Configuration)
+		configInstance.scheduler = gocron.NewScheduler(time.UTC)
 		configInstance.GetConfiguration()
 	}
 	return configInstance
 }
 
-func getClientSet(inCluster bool) *kubernetes.Clientset {
+func getClientSet() *kubernetes.Clientset {
 	var clientSet *kubernetes.Clientset
 
-	if inCluster {
-		// creates the in-cluster config
-		config, err := rest.InClusterConfig()
-
-		if err != nil {
-			panic(err.Error())
-		}
-
-		// creates the clientSet
-		clientSet, err = kubernetes.NewForConfig(config)
-
-		if err != nil {
-			panic(err.Error())
-		}
-	} else {
-		// Authentication - from outside of the cluster
-		var kubeconfig *string
-
-		if pwd, _ := os.Getwd(); pwd != "" {
-			kubeconfig = flag.String("kubeconfig", filepath.Join(pwd, "/k8s_resources/kubeConfig.yaml"), "(optional) absolute path to the kubeconfig file")
-		} else {
-			kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-		}
-
-		flag.Parse()
-
+	// Authentication - from outside of the cluster
+	if pwd, err := os.Getwd(); err == nil && pwd != "" {
+		kubeconfig := flag.String("kubeconfig", filepath.Join(pwd, "kubeConfig.yaml"), "(optional) absolute path to the kubeconfig file")
 		// use the current context in kubeconfig
 		config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 
@@ -73,7 +57,21 @@ func getClientSet(inCluster bool) *kubernetes.Clientset {
 		if err != nil {
 			panic(err.Error())
 		}
+	} else {
+		// Authentication - from inside of the cluster
+		// creates the in-cluster config
+		config, err := rest.InClusterConfig()
 
+		if err != nil {
+			panic(err.Error())
+		}
+
+		// creates the clientSet
+		clientSet, err = kubernetes.NewForConfig(config)
+
+		if err != nil {
+			panic(err.Error())
+		}
 	}
 	return clientSet
 }
@@ -160,36 +158,43 @@ func getNameSpaceConfigs(clientSet *kubernetes.Clientset) []NamespaceConfigurati
 func getServerConfigurations() []ServerConfiguration {
 	var serverConfigs []ServerConfiguration
 
-	httpPortString, found := os.LookupEnv("KAWE_HTTP_PORT")
-	if found {
+	httpPortString := os.Getenv("KAWE_HTTP_PORT")
+	if httpPortString != "" {
 		httpPort, err := strconv.Atoi(httpPortString)
 		if err == nil {
 			serverConfigs = append(serverConfigs, ServerConfiguration{Type: "HTTP", Port: httpPort})
 		}
+	} else {
+		fmt.Println("KAWE_HTTP_PORT not found, using default port")
+		serverConfigs = append(serverConfigs, ServerConfiguration{Type: "HTTP", Port: 80})
 	}
 
-	prometheusPortString, found := os.LookupEnv("KAWE_PROMETHEUS_PORT")
-	if found {
+	prometheusPortString := os.Getenv("KAWE_PROMETHEUS_PORT")
+	if prometheusPortString != "" {
 		prometheusPort, err := strconv.Atoi(prometheusPortString)
 		if err == nil {
 			serverConfigs = append(serverConfigs, ServerConfiguration{Type: "PROMETHEUS", Port: prometheusPort})
 		}
+	} else {
+		fmt.Println("KAWE_PROMETHEUS_PORT not found, using default port")
+		serverConfigs = append(serverConfigs, ServerConfiguration{Type: "PROMETHEUS", Port: 80})
 	}
+
 	return serverConfigs
 }
 
+func (cfg *Configuration) getTargets(clientSet *kubernetes.Clientset) {
+	cfg.EndpointConfigs = EndpointConfiguration{Namespaces: getNameSpaceConfigs(clientSet)}
+}
+
 func (cfg *Configuration) GetConfiguration() {
-	isInCluster := false
-	if len(os.Args) > 1 {
-		inCluster := flag.Bool("inCluster", false, "a bool")
-		flag.Parse()
-		isInCluster = *inCluster
-	}
 
-	clientSet := getClientSet(isInCluster)
+	clientSet := getClientSet()
 
-	GetInstance().EndpointConfigs = EndpointConfiguration{Namespaces: getNameSpaceConfigs(clientSet)}
-	GetInstance().ServerConfigs = getServerConfigurations()
+	cfg.ServerConfigs = getServerConfigurations()
+	cfg.getTargets(clientSet)
+	cfg.scheduler.Every("1m").Do(cfg.getTargets, clientSet)
+	cfg.scheduler.StartAsync()
 }
 
 func (c Configuration) String() string {
