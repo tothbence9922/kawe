@@ -1,6 +1,6 @@
 module github.com/tothbence9922/kawe
 
-go 1.17
+go 1.20
 
 require github.com/prometheus/client_golang v1.14.0
 

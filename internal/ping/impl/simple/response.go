@@ -10,6 +10,7 @@ type PingResponse struct {
 	Success   bool
 	Error     string
 	Target    string
+	Labels    map[string]string
 	Timestamp time.Time
 }
 

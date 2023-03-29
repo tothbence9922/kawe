@@ -36,7 +36,7 @@ func (sps *PingService) Configure(config configuration.ServiceConfiguration, pro
 	sps.Processor = processor
 	sps.Result = &PingResult{ServiceName: sps.Name, Responses: make(map[string](interfaces.IPingResponse))}
 	for _, pingConfig := range config.Pods {
-		sps.methods = append(sps.methods, PingMethod{Target: pingConfig.Address + ":80", Timeout: pingConfig.Timeout, Method: "tcp", Periodicity: pingConfig.Periodicity})
+		sps.methods = append(sps.methods, PingMethod{Target: pingConfig.Address + ":80", Labels: pingConfig.Labels, Timeout: pingConfig.Timeout, Method: "tcp", Periodicity: pingConfig.Periodicity})
 	}
 }
 

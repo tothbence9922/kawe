@@ -100,7 +100,8 @@ func getNameSpaceConfigs(clientSet *kubernetes.Clientset) []NamespaceConfigurati
 		for _, pod := range allPods.Items {
 			podIp := pod.Status.PodIP
 			podName := pod.ObjectMeta.Name
-			podConfigs = append(podConfigs, PodConfiguration{Address: podIp, Name: podName, Enabled: true, Periodicity: 5, Timeout: 5000})
+			podLabels := pod.ObjectMeta.Labels
+			podConfigs = append(podConfigs, PodConfiguration{Address: podIp, Name: podName, Labels: podLabels, Enabled: true, Periodicity: 5, Timeout: 5000})
 		}
 
 		// Using endpoints as "services"
@@ -239,6 +240,7 @@ type ServiceConfiguration struct {
 
 type PodConfiguration struct {
 	Name        string
+	Labels      map[string]string
 	Address     string
 	Enabled     bool
 	Periodicity int

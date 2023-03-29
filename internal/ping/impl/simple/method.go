@@ -11,6 +11,7 @@ import (
 
 type PingMethod struct {
 	Target      string
+	Labels      map[string]string
 	Method      string
 	Timeout     int
 	Periodicity int
@@ -19,6 +20,10 @@ type PingMethod struct {
 func (spm PingMethod) GetTarget() string {
 
 	return spm.Target
+}
+func (spm PingMethod) GetLabels() map[string]string {
+
+	return spm.Labels
 }
 
 func (spm PingMethod) String() string {
@@ -33,7 +38,7 @@ func (spm PingMethod) GetPeriodicity() (Periodicity int) {
 
 func (spm PingMethod) Ping() (interfaces.IPingResponse, error) {
 
-	ret := PingResponse{Target: spm.Target}
+	ret := PingResponse{Target: spm.Target, Labels: spm.Labels}
 
 	if len(spm.Method) == 0 {
 		return ret, errors.New("No applicable network options given.")
