@@ -12,6 +12,12 @@ type PingResult struct {
 	sync.RWMutex
 	Responses   map[string](interfaces.IPingResponse)
 	ServiceName string
+	Annotations map[string]string
+}
+
+func (spr *PingResult) GetAnnotations() map[string]string {
+
+	return spr.Annotations
 }
 
 func (spr *PingResult) GetResponses() map[string](interfaces.IPingResponse) {

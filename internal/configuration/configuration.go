@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/go-co-op/gocron"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -76,6 +77,15 @@ func getClientSet() *kubernetes.Clientset {
 	return clientSet
 }
 
+func getAnnotationsForEndpointByName(name string, services *v1.ServiceList) map[string]string {
+	for _, service := range services.Items {
+		if service.ObjectMeta.Name == name {
+			return service.Annotations
+		}
+	}
+	return make(map[string]string)
+}
+
 func getNameSpaceConfigs(clientSet *kubernetes.Clientset) []NamespaceConfiguration {
 	namespaces, err := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 
@@ -101,11 +111,14 @@ func getNameSpaceConfigs(clientSet *kubernetes.Clientset) []NamespaceConfigurati
 			podIp := pod.Status.PodIP
 			podName := pod.ObjectMeta.Name
 			podLabels := pod.ObjectMeta.Labels
-			podConfigs = append(podConfigs, PodConfiguration{Address: podIp, Name: podName, Labels: podLabels, Enabled: true, Periodicity: 5, Timeout: 5000})
+			podAnnotations := pod.GetAnnotations()
+			// TODO use target port from service.Spec.Ports
+			podConfigs = append(podConfigs, PodConfiguration{Address: podIp, Name: podName, Labels: podLabels, Annotations: podAnnotations, Enabled: true, Periodicity: 5, Timeout: 5000})
 		}
 
-		// Using endpoints as "services"
+		// Using endpoints as "services" to see IP addresses
 		endpoints, err := clientSet.CoreV1().Endpoints(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
+		services, err := clientSet.CoreV1().Services(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
 
 		if err != nil {
 			panic(err.Error())
@@ -116,6 +129,7 @@ func getNameSpaceConfigs(clientSet *kubernetes.Clientset) []NamespaceConfigurati
 		for _, endpoint := range endpoints.Items {
 
 			serviceName := endpoint.ObjectMeta.Name
+			serviceAnnotations := getAnnotationsForEndpointByName(endpoint.ObjectMeta.Name, services)
 			currentPodConfigs := []PodConfiguration{}
 
 			for _, subset := range endpoint.Subsets {
@@ -128,7 +142,7 @@ func getNameSpaceConfigs(clientSet *kubernetes.Clientset) []NamespaceConfigurati
 				}
 			}
 
-			serviceConfigurations = append(serviceConfigurations, ServiceConfiguration{Name: serviceName, Pods: currentPodConfigs})
+			serviceConfigurations = append(serviceConfigurations, ServiceConfiguration{Name: serviceName, Annotations: serviceAnnotations, Pods: currentPodConfigs})
 
 		}
 
@@ -234,6 +248,7 @@ type NamespaceConfiguration struct {
 
 type ServiceConfiguration struct {
 	Name            string
+	Annotations     map[string]string
 	Pods            []PodConfiguration
 	ProcessorConfig ProcessorConfiguration
 }
@@ -241,6 +256,7 @@ type ServiceConfiguration struct {
 type PodConfiguration struct {
 	Name        string
 	Labels      map[string]string
+	Annotations map[string]string
 	Address     string
 	Enabled     bool
 	Periodicity int

@@ -14,10 +14,11 @@ import (
 type PingService struct {
 	sync.Mutex
 
-	methods   []interfaces.IPingMethod
-	Name      string
-	Processor processorInterfaces.IProcessor
-	Result    interfaces.IPingResult
+	methods     []interfaces.IPingMethod
+	Name        string
+	Annotations map[string]string
+	Processor   processorInterfaces.IProcessor
+	Result      interfaces.IPingResult
 }
 
 func (sps *PingService) String() string {
@@ -33,10 +34,11 @@ func (sps *PingService) String() string {
 func (sps *PingService) Configure(config configuration.ServiceConfiguration, processor processorInterfaces.IProcessor) {
 
 	sps.Name = config.Name
+	sps.Annotations = config.Annotations
 	sps.Processor = processor
-	sps.Result = &PingResult{ServiceName: sps.Name, Responses: make(map[string](interfaces.IPingResponse))}
+	sps.Result = &PingResult{ServiceName: sps.Name, Annotations: config.Annotations, Responses: make(map[string](interfaces.IPingResponse))}
 	for _, pingConfig := range config.Pods {
-		sps.methods = append(sps.methods, PingMethod{Target: pingConfig.Address + ":80", Labels: pingConfig.Labels, Timeout: pingConfig.Timeout, Method: "tcp", Periodicity: pingConfig.Periodicity})
+		sps.methods = append(sps.methods, PingMethod{Target: pingConfig.Address + ":80", Labels: pingConfig.Labels, Annotations: pingConfig.Annotations, Timeout: pingConfig.Timeout, Method: "tcp", Periodicity: pingConfig.Periodicity})
 	}
 }
 

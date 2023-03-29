@@ -7,11 +7,12 @@ import (
 )
 
 type PingResponse struct {
-	Success   bool
-	Error     string
-	Target    string
-	Labels    map[string]string
-	Timestamp time.Time
+	Success     bool
+	Error       string
+	Target      string
+	Labels      map[string]string
+	Annotations map[string]string
+	Timestamp   time.Time
 }
 
 func (pr PingResponse) GetTarget() string {
