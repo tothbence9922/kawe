@@ -12,7 +12,7 @@
 *.out
 
 # kubeConfig for out-of-cluster usage
-k8s_resources/kubeConfig.yaml
+kubeConfig.yaml
 
 # VsCode settings
 .vscode/
