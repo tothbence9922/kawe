@@ -1,12 +1,12 @@
 package processor
 
 import (
-	configurations "github.com/tothbence9922/kawe/internal/configuration"
+	configTypes "github.com/tothbence9922/kawe/internal/configuration/types"
 	availability "github.com/tothbence9922/kawe/internal/processor/impl/availability"
 	processorInterfaces "github.com/tothbence9922/kawe/internal/processor/interfaces"
 )
 
-func GetProcessor(pc configurations.ProcessorConfiguration) processorInterfaces.IProcessor {
+func GetProcessor(pc configTypes.ProcessorConfiguration) processorInterfaces.IProcessor {
 
 	switch {
 	case pc.Type == "PERCENTAGE":

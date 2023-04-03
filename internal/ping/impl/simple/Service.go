@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/tothbence9922/kawe/internal/configuration"
+	configTypes "github.com/tothbence9922/kawe/internal/configuration/types"
 	interfaces "github.com/tothbence9922/kawe/internal/ping/interfaces"
 	processor "github.com/tothbence9922/kawe/internal/processor/impl"
 	processorInterfaces "github.com/tothbence9922/kawe/internal/processor/interfaces"
@@ -31,7 +32,7 @@ func (sps *PingService) String() string {
 	return ret
 }
 
-func (sps *PingService) Configure(config configuration.ServiceConfiguration, processor processorInterfaces.IProcessor) {
+func (sps *PingService) Configure(config configTypes.ServiceConfiguration, processor processorInterfaces.IProcessor) {
 
 	sps.Name = config.Name
 	sps.Annotations = config.Annotations
