@@ -1,4 +1,4 @@
-package simple
+package tcp
 
 import (
 	"fmt"
@@ -8,8 +8,8 @@ import (
 	"github.com/tothbence9922/kawe/internal/configuration"
 	configTypes "github.com/tothbence9922/kawe/internal/configuration/types"
 	interfaces "github.com/tothbence9922/kawe/internal/ping/interfaces"
-	processor "github.com/tothbence9922/kawe/internal/processor/impl"
 	processorInterfaces "github.com/tothbence9922/kawe/internal/processor/interfaces"
+	processor "github.com/tothbence9922/kawe/internal/processor/types"
 )
 
 type PingService struct {
@@ -22,6 +22,10 @@ type PingService struct {
 	Result      interfaces.IPingResult
 }
 
+func (sps *PingService) GetMethods() []interfaces.IPingMethod {
+
+	return sps.methods
+}
 func (sps *PingService) String() string {
 
 	var ret string
@@ -39,7 +43,7 @@ func (sps *PingService) Configure(config configTypes.ServiceConfiguration, proce
 	sps.Processor = processor
 	sps.Result = &PingResult{ServiceName: sps.Name, Annotations: config.Annotations, Responses: make(map[string](interfaces.IPingResponse))}
 	for _, pingConfig := range config.Pods {
-		sps.methods = append(sps.methods, PingMethod{Target: pingConfig.Address + ":80", Labels: pingConfig.Labels, Annotations: pingConfig.Annotations, Timeout: pingConfig.Timeout, Method: "tcp", Periodicity: pingConfig.Periodicity})
+		sps.methods = append(sps.methods, PingMethod{Target: pingConfig.Address + ":80", Labels: pingConfig.Labels, Annotations: pingConfig.Annotations, Timeout: pingConfig.Timeout, Periodicity: pingConfig.Periodicity})
 	}
 }
 

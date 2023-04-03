@@ -4,8 +4,8 @@ import (
 	"sync"
 
 	"github.com/tothbence9922/kawe/internal/configuration"
-	prometheusServer "github.com/tothbence9922/kawe/internal/server/impl/prometheus"
-	httpServer "github.com/tothbence9922/kawe/internal/server/impl/simple"
+	httpServer "github.com/tothbence9922/kawe/internal/server/http"
+	prometheusServer "github.com/tothbence9922/kawe/internal/server/prometheus"
 )
 
 func Start(wg *sync.WaitGroup) {

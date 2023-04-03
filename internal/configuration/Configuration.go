@@ -8,6 +8,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	configTypes "github.com/tothbence9922/kawe/internal/configuration/types"
+	"github.com/tothbence9922/kawe/internal/utils"
 )
 
 type Configuration struct {
@@ -32,14 +33,14 @@ func GetInstance() *Configuration {
 }
 
 func (cfg *Configuration) getTargets(clientSet *kubernetes.Clientset) {
-	cfg.EndpointConfigs = configTypes.EndpointConfiguration{Namespaces: getNameSpaceConfigs(clientSet)}
+	cfg.EndpointConfigs = configTypes.EndpointConfiguration{Namespaces: utils.GetNameSpaceConfigs(clientSet)}
 }
 
 func (cfg *Configuration) GetConfiguration() {
 
-	clientSet := getClientSet()
+	clientSet := utils.GetClientSet()
 
-	cfg.ServerConfigs = getServerConfigurations()
+	cfg.ServerConfigs = utils.GetServerConfigurations()
 	cfg.getTargets(clientSet)
 	cfg.scheduler.Every("1m").Do(cfg.getTargets, clientSet)
 	cfg.scheduler.StartAsync()

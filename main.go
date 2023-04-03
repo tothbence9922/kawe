@@ -4,8 +4,8 @@ import (
 	"sync"
 
 	aggregator "github.com/tothbence9922/kawe/internal/aggregator"
-	simpleService "github.com/tothbence9922/kawe/internal/ping/impl/simple"
-	server "github.com/tothbence9922/kawe/internal/server/impl"
+	tcpService "github.com/tothbence9922/kawe/internal/ping/tcp"
+	server "github.com/tothbence9922/kawe/internal/server"
 )
 
 var (
@@ -17,7 +17,7 @@ func start(wg *sync.WaitGroup) {
 	aggregator.Start(wg)
 
 	// The pinging service starts based on the configuration file
-	simpleService.Start(wg)
+	tcpService.Start(wg)
 
 	// Servers start based on .env variables
 	server.Start(wg)

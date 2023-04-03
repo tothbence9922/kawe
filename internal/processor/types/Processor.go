@@ -2,7 +2,7 @@ package processor
 
 import (
 	configTypes "github.com/tothbence9922/kawe/internal/configuration/types"
-	availability "github.com/tothbence9922/kawe/internal/processor/impl/availability"
+	availability "github.com/tothbence9922/kawe/internal/processor/availability"
 	processorInterfaces "github.com/tothbence9922/kawe/internal/processor/interfaces"
 )
 

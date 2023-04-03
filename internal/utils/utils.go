@@ -1,4 +1,4 @@
-package configuration
+package utils
 
 import (
 	"context"
@@ -17,7 +17,7 @@ import (
 	configTypes "github.com/tothbence9922/kawe/internal/configuration/types"
 )
 
-func getClientSet() *kubernetes.Clientset {
+func GetClientSet() *kubernetes.Clientset {
 	var clientSet *kubernetes.Clientset
 
 	// Authentication - from outside of the cluster
@@ -55,7 +55,7 @@ func getClientSet() *kubernetes.Clientset {
 	return clientSet
 }
 
-func getAnnotationsForEndpointByName(name string, services *v1.ServiceList) map[string]string {
+func GetAnnotationsForEndpointByName(name string, services *v1.ServiceList) map[string]string {
 	for _, service := range services.Items {
 		if service.ObjectMeta.Name == name {
 			return service.Annotations
@@ -64,7 +64,7 @@ func getAnnotationsForEndpointByName(name string, services *v1.ServiceList) map[
 	return make(map[string]string)
 }
 
-func getNameSpaceConfigs(clientSet *kubernetes.Clientset) []configTypes.NamespaceConfiguration {
+func GetNameSpaceConfigs(clientSet *kubernetes.Clientset) []configTypes.NamespaceConfiguration {
 	namespaces, err := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 
 	if err != nil {
@@ -107,7 +107,7 @@ func getNameSpaceConfigs(clientSet *kubernetes.Clientset) []configTypes.Namespac
 		for _, endpoint := range endpoints.Items {
 
 			serviceName := endpoint.ObjectMeta.Name
-			serviceAnnotations := getAnnotationsForEndpointByName(endpoint.ObjectMeta.Name, services)
+			serviceAnnotations := GetAnnotationsForEndpointByName(endpoint.ObjectMeta.Name, services)
 			currentPodConfigs := []configTypes.PodConfiguration{}
 
 			for _, subset := range endpoint.Subsets {
@@ -148,7 +148,7 @@ func getNameSpaceConfigs(clientSet *kubernetes.Clientset) []configTypes.Namespac
 	return namespaceConfigs
 }
 
-func getServerConfigurations() []configTypes.ServerConfiguration {
+func GetServerConfigurations() []configTypes.ServerConfiguration {
 	var serverConfigs []configTypes.ServerConfiguration
 
 	httpPortString := os.Getenv("KAWE_HTTP_PORT")
