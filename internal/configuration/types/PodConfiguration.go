@@ -4,9 +4,8 @@ import "fmt"
 
 type PodConfiguration struct {
 	Name        string
-	Labels      map[string]string
-	Annotations map[string]string
 	Address     string
+	Port        string
 	Enabled     bool
 	Periodicity int
 	Timeout     int

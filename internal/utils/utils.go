@@ -10,6 +10,7 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	labels "k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -17,12 +18,27 @@ import (
 	configTypes "github.com/tothbence9922/kawe/internal/configuration/types"
 )
 
+var (
+	kubeconfig *string
+)
+
+func initFlags() {
+	if pwd, err := os.Getwd(); err == nil && pwd != "" {
+		kubeconfig = flag.String("kubeconfig", filepath.Join(pwd, "kubeConfig.yaml"), "(optional) absolute path to the kubeconfig file")
+	} else {
+		panic("Failed to define kubeconfig flag.")
+	}
+}
+
 func GetClientSet() *kubernetes.Clientset {
 	var clientSet *kubernetes.Clientset
 
+	if kubeconfig == nil {
+		initFlags()
+	}
+
 	// Authentication - from outside of the cluster
 	if pwd, err := os.Getwd(); err == nil && pwd != "" {
-		kubeconfig := flag.String("kubeconfig", filepath.Join(pwd, "kubeConfig.yaml"), "(optional) absolute path to the kubeconfig file")
 		// use the current context in kubeconfig
 		config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 
@@ -75,27 +91,10 @@ func GetNameSpaceConfigs(clientSet *kubernetes.Clientset) []configTypes.Namespac
 
 	// Iterating through all namespaces, adding services and pods behind services to the configuration
 	for _, namespace := range namespaces.Items {
-
-		// Getting all pods - including the ones behind services and separate ones aswell.
-		allPods, err := clientSet.CoreV1().Pods(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
-
 		if err != nil {
 			panic(err.Error())
 		}
 
-		podConfigs := []configTypes.PodConfiguration{}
-
-		for _, pod := range allPods.Items {
-			podIp := pod.Status.PodIP
-			podName := pod.ObjectMeta.Name
-			podLabels := pod.ObjectMeta.Labels
-			podAnnotations := pod.GetAnnotations()
-			// TODO use target port from service.Spec.Ports
-			podConfigs = append(podConfigs, configTypes.PodConfiguration{Address: podIp, Name: podName, Labels: podLabels, Annotations: podAnnotations, Enabled: true, Periodicity: 5, Timeout: 5000})
-		}
-
-		// Using endpoints as "services" to see IP addresses
-		endpoints, err := clientSet.CoreV1().Endpoints(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
 		services, err := clientSet.CoreV1().Services(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
 
 		if err != nil {
@@ -103,46 +102,27 @@ func GetNameSpaceConfigs(clientSet *kubernetes.Clientset) []configTypes.Namespac
 		}
 
 		serviceConfigurations := []configTypes.ServiceConfiguration{}
+		for _, service := range services.Items {
+			podConfigs := []configTypes.PodConfiguration{}
 
-		for _, endpoint := range endpoints.Items {
+			serviceName := service.Name
+			serviceAnnotations := service.ObjectMeta.Annotations
+			labelSet := labels.Set(service.Spec.Selector)
 
-			serviceName := endpoint.ObjectMeta.Name
-			serviceAnnotations := GetAnnotationsForEndpointByName(endpoint.ObjectMeta.Name, services)
-			currentPodConfigs := []configTypes.PodConfiguration{}
+			if pods, err := clientSet.CoreV1().Pods(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{LabelSelector: labelSet.AsSelector().String()}); err == nil {
+				for _, pod := range pods.Items {
+					podIp := pod.Status.PodIP
+					podName := pod.ObjectMeta.Name
 
-			for _, subset := range endpoint.Subsets {
-				for _, address := range subset.Addresses {
-					for _, podConfig := range podConfigs {
-						if address.IP == podConfig.Address {
-							currentPodConfigs = append(currentPodConfigs, podConfig)
-						}
+					for _, port := range service.Spec.Ports {
+						podConfigs = append(podConfigs, configTypes.PodConfiguration{Address: podIp, Port: strconv.Itoa(port.TargetPort.IntValue()), Name: podName, Enabled: true, Periodicity: 5, Timeout: 5000})
 					}
 				}
 			}
-
-			serviceConfigurations = append(serviceConfigurations, configTypes.ServiceConfiguration{Name: serviceName, Annotations: serviceAnnotations, Pods: currentPodConfigs})
+			serviceConfigurations = append(serviceConfigurations, configTypes.ServiceConfiguration{Name: serviceName, Annotations: serviceAnnotations, Pods: podConfigs})
 
 		}
-
-		separatePodConfigs := []configTypes.PodConfiguration{}
-
-		for _, podConfig := range podConfigs {
-			found := false
-
-			for _, serviceConfig := range serviceConfigurations {
-				for _, svcPodConfig := range serviceConfig.Pods {
-					if svcPodConfig.Address == podConfig.Address {
-						found = true
-					}
-				}
-			}
-
-			if !found {
-				separatePodConfigs = append(separatePodConfigs, podConfig)
-			}
-		}
-
-		namespaceConfigs = append(namespaceConfigs, configTypes.NamespaceConfiguration{Name: namespace.ObjectMeta.Name, Services: serviceConfigurations, Pods: separatePodConfigs})
+		namespaceConfigs = append(namespaceConfigs, configTypes.NamespaceConfiguration{Name: namespace.ObjectMeta.Name, Services: serviceConfigurations})
 	}
 
 	return namespaceConfigs

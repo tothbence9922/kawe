@@ -37,12 +37,9 @@ func (cfg *Configuration) getTargets(clientSet *kubernetes.Clientset) {
 }
 
 func (cfg *Configuration) GetConfiguration() {
-
-	clientSet := utils.GetClientSet()
-
+	GetInstance().getTargets(utils.GetClientSet())
 	cfg.ServerConfigs = utils.GetServerConfigurations()
-	cfg.getTargets(clientSet)
-	cfg.scheduler.Every("1m").Do(cfg.getTargets, clientSet)
+	cfg.scheduler.Every("1m").Do(GetInstance().getTargets, utils.GetClientSet())
 	cfg.scheduler.StartAsync()
 }
 

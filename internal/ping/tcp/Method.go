@@ -11,7 +11,7 @@ import (
 
 type PingMethod struct {
 	Target      string
-	Labels      map[string]string
+	Name        string
 	Annotations map[string]string
 	Timeout     int
 	Periodicity int
@@ -20,10 +20,6 @@ type PingMethod struct {
 func (spm PingMethod) GetTarget() string {
 
 	return spm.Target
-}
-func (spm PingMethod) GetLabels() map[string]string {
-
-	return spm.Labels
 }
 
 func (spm PingMethod) String() string {
@@ -37,8 +33,7 @@ func (spm PingMethod) GetPeriodicity() (Periodicity int) {
 }
 
 func (spm PingMethod) Ping() (interfaces.IPingResponse, error) {
-
-	ret := PingResponse{Target: spm.Target, Labels: spm.Labels, Annotations: spm.Annotations}
+	ret := PingResponse{Name: spm.Name, Target: spm.Target}
 
 	if spm.Target == "" {
 		return ret, errors.New("Address to ping is not given.")
