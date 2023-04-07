@@ -16,7 +16,7 @@ func start(wg *sync.WaitGroup) {
 	// Aggregator is started before the pinging service
 	aggregator.Start(wg)
 
-	// The pinging service starts based on the configuration file
+	// The pinging service starts based on the dynamic configuration
 	tcpService.Start(wg)
 
 	// Servers start based on .env variables
