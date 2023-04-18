@@ -6,18 +6,18 @@ import (
 )
 
 type UnitProcessor struct {
-	Threshold float32
+	Threshold int
 }
 
 func (ap *UnitProcessor) ProcessData(result pingInterfaces.IPingResult) {
 
 	processedData := new(UnitProcessedData)
 	processedData.Result = result
-	processedData.Threshold = float32(ap.Threshold)
-
+	processedData.Threshold = ap.Threshold
+	processedData.ProcessorType = "UNIT"
 	responses := result.GetResponses()
 	totalCount := 0
-	successCount := float32(0)
+	successCount := 0
 
 	for _, value := range responses {
 		totalCount++

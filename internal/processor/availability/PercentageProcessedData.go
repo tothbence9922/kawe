@@ -7,18 +7,19 @@ import (
 )
 
 type PercentageProcessedData struct {
-	Result     pingInterfaces.IPingResult
-	Available  bool
-	Threshold  float32
-	Percentage float32
+	Result        pingInterfaces.IPingResult
+	Available     bool
+	Threshold     int
+	Percentage    int
+	ProcessorType string
 }
 
-func (pd *PercentageProcessedData) GetValue() float32 {
+func (pd *PercentageProcessedData) GetValue() int {
 
 	return pd.Percentage
 }
 
-func (pd *PercentageProcessedData) GetThreshold() float32 {
+func (pd *PercentageProcessedData) GetThreshold() int {
 
 	return pd.Threshold
 }
@@ -31,6 +32,10 @@ func (pd *PercentageProcessedData) GetAvailability() bool {
 func (pd *PercentageProcessedData) GetServiceName() string {
 
 	return pd.Result.GetServiceName()
+}
+func (pd *PercentageProcessedData) GetProcessorType() string {
+
+	return pd.ProcessorType
 }
 
 func (pd *PercentageProcessedData) String() string {

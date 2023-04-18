@@ -10,9 +10,10 @@ import (
 
 type PingResult struct {
 	sync.RWMutex
-	Responses   map[string](interfaces.IPingResponse)
-	ServiceName string
-	Annotations map[string]string
+	Responses     map[string](interfaces.IPingResponse)
+	ServiceName   string
+	Annotations   map[string]string
+	ProcessorType string
 }
 
 func (spr *PingResult) GetAnnotations() map[string]string {

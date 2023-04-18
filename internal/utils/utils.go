@@ -80,6 +80,89 @@ func GetAnnotationsForEndpointByName(name string, services *v1.ServiceList) map[
 	return make(map[string]string)
 }
 
+func GetPodConfigurations(clientSet *kubernetes.Clientset, namespace v1.Namespace, service v1.Service) []configTypes.PodConfiguration {
+	podConfigurations := []configTypes.PodConfiguration{}
+
+	labelSet := labels.Set(service.Spec.Selector)
+
+	serviceAnnotations := service.ObjectMeta.Annotations
+
+	periodicity := 60
+
+	periodicityAnnotation, periodicityFound := serviceAnnotations["kawe.periodicity"]
+
+	if periodicityFound {
+		periodicityParsed, parseError := strconv.Atoi(periodicityAnnotation)
+		if parseError == nil {
+			periodicity = periodicityParsed
+		}
+	}
+
+	if pods, err := clientSet.CoreV1().Pods(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{LabelSelector: labelSet.AsSelector().String()}); err == nil {
+		for _, pod := range pods.Items {
+			podIp := pod.Status.PodIP
+			podName := pod.ObjectMeta.Name
+
+			for _, port := range service.Spec.Ports {
+				podConfigurations = append(podConfigurations, configTypes.PodConfiguration{Address: podIp, Port: strconv.Itoa(port.TargetPort.IntValue()), Name: podName, Enabled: true, Periodicity: periodicity, Timeout: 5000})
+			}
+		}
+	}
+	return podConfigurations
+}
+
+func getDefaultThreshold(processorType string) int {
+	switch processorType {
+	case "UNIT":
+		return 1
+	case "PERCENTAGE":
+		return 100
+	default:
+		return 100
+	}
+}
+
+func GetServiceConfigurations(clientSet *kubernetes.Clientset, namespace v1.Namespace) []configTypes.ServiceConfiguration {
+	services, err := clientSet.CoreV1().Services(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	serviceConfigurations := []configTypes.ServiceConfiguration{}
+	for _, service := range services.Items {
+		serviceName := service.Name
+		serviceAnnotations := service.ObjectMeta.Annotations
+
+		podConfigurations := GetPodConfigurations(clientSet, namespace, service)
+
+		processorType := "PERCENTAGE"
+
+		processorTypeAnnotation, processorTypeFound := serviceAnnotations["kawe.processor.type"]
+
+		if processorTypeFound {
+			processorType = processorTypeAnnotation
+		}
+
+		threshold := getDefaultThreshold(processorType)
+
+		thresholdAnnotation, thresholdFound := serviceAnnotations["kawe.processor.threshold"]
+
+		if thresholdFound {
+			thresholdParsed, parseError := strconv.Atoi(thresholdAnnotation)
+			if parseError == nil {
+				threshold = thresholdParsed
+			}
+		}
+
+		processorConfiguration := configTypes.ProcessorConfiguration{Type: processorType, Threshold: threshold}
+
+		serviceConfigurations = append(serviceConfigurations, configTypes.ServiceConfiguration{Name: serviceName, Annotations: serviceAnnotations, Pods: podConfigurations, ProcessorConfig: processorConfiguration})
+	}
+
+	return serviceConfigurations
+}
+
 func GetNameSpaceConfigs(clientSet *kubernetes.Clientset) []configTypes.NamespaceConfiguration {
 	namespaces, err := clientSet.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 
@@ -91,38 +174,7 @@ func GetNameSpaceConfigs(clientSet *kubernetes.Clientset) []configTypes.Namespac
 
 	// Iterating through all namespaces, adding services and pods behind services to the configuration
 	for _, namespace := range namespaces.Items {
-		if err != nil {
-			panic(err.Error())
-		}
-
-		services, err := clientSet.CoreV1().Services(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{})
-
-		if err != nil {
-			panic(err.Error())
-		}
-
-		serviceConfigurations := []configTypes.ServiceConfiguration{}
-		for _, service := range services.Items {
-			podConfigs := []configTypes.PodConfiguration{}
-
-			serviceName := service.Name
-			serviceAnnotations := service.ObjectMeta.Annotations
-			labelSet := labels.Set(service.Spec.Selector)
-
-			if pods, err := clientSet.CoreV1().Pods(namespace.ObjectMeta.Name).List(context.TODO(), metav1.ListOptions{LabelSelector: labelSet.AsSelector().String()}); err == nil {
-				for _, pod := range pods.Items {
-					podIp := pod.Status.PodIP
-					podName := pod.ObjectMeta.Name
-
-					for _, port := range service.Spec.Ports {
-						podConfigs = append(podConfigs, configTypes.PodConfiguration{Address: podIp, Port: strconv.Itoa(port.TargetPort.IntValue()), Name: podName, Enabled: true, Periodicity: 5, Timeout: 5000})
-					}
-				}
-			}
-			serviceConfigurations = append(serviceConfigurations, configTypes.ServiceConfiguration{Name: serviceName, Annotations: serviceAnnotations, Pods: podConfigs})
-
-		}
-		namespaceConfigs = append(namespaceConfigs, configTypes.NamespaceConfiguration{Name: namespace.ObjectMeta.Name, Services: serviceConfigurations})
+		namespaceConfigs = append(namespaceConfigs, configTypes.NamespaceConfiguration{Name: namespace.ObjectMeta.Name, Services: GetServiceConfigurations(clientSet, namespace)})
 	}
 
 	return namespaceConfigs

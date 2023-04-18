@@ -3,8 +3,8 @@ package types
 import "fmt"
 
 type ProcessorConfiguration struct {
-	Type   string
-	Params interface{}
+	Type      string
+	Threshold int
 }
 
 func (pc ProcessorConfiguration) String() string {

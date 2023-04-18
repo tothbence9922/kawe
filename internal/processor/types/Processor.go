@@ -10,14 +10,12 @@ func GetProcessor(pc configTypes.ProcessorConfiguration) processorInterfaces.IPr
 
 	switch {
 	case pc.Type == "PERCENTAGE":
-		cfg := pc.Params.(map[string]interface{})
 		ret := new(availability.PercentageProcessor)
-		ret.Threshold = float32(cfg["Threshold"].(float64))
+		ret.Threshold = pc.Threshold
 		return ret
 	case pc.Type == "UNIT":
-		cfg := pc.Params.(map[string]interface{})
 		ret := new(availability.UnitProcessor)
-		ret.Threshold = float32(cfg["Threshold"].(float64))
+		ret.Threshold = pc.Threshold
 		return ret
 	default:
 		ret := new(availability.PercentageProcessor)

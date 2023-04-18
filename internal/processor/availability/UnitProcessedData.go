@@ -9,16 +9,17 @@ import (
 type UnitProcessedData struct {
 	Result         pingInterfaces.IPingResult
 	Available      bool
-	Threshold      float32
-	AvailableUnits float32
+	Threshold      int
+	AvailableUnits int
+	ProcessorType  string
 }
 
-func (pd *UnitProcessedData) GetValue() float32 {
+func (pd *UnitProcessedData) GetValue() int {
 
 	return pd.AvailableUnits
 }
 
-func (pd *UnitProcessedData) GetThreshold() float32 {
+func (pd *UnitProcessedData) GetThreshold() int {
 
 	return pd.Threshold
 }
@@ -26,6 +27,11 @@ func (pd *UnitProcessedData) GetThreshold() float32 {
 func (pd *UnitProcessedData) GetAvailability() bool {
 
 	return pd.Available
+}
+
+func (pd *UnitProcessedData) GetProcessorType() string {
+
+	return pd.ProcessorType
 }
 
 func (pd *UnitProcessedData) GetServiceName() string {

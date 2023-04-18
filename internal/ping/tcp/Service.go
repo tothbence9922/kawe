@@ -41,7 +41,7 @@ func (sps *PingService) Configure(config configTypes.ServiceConfiguration, proce
 	sps.Name = config.Name
 	sps.Annotations = config.Annotations
 	sps.Processor = processor
-	sps.Result = &PingResult{ServiceName: sps.Name, Annotations: config.Annotations, Responses: make(map[string](interfaces.IPingResponse))}
+	sps.Result = &PingResult{ServiceName: sps.Name, Annotations: config.Annotations, ProcessorType: config.ProcessorConfig.Type, Responses: make(map[string](interfaces.IPingResponse))}
 	for _, pingConfig := range config.Pods {
 		sps.methods = append(sps.methods, PingMethod{Target: fmt.Sprintf("%s:%s", pingConfig.Address, pingConfig.Port), Name: pingConfig.Name, Timeout: pingConfig.Timeout, Periodicity: pingConfig.Periodicity})
 	}
@@ -77,7 +77,6 @@ func Start(wg *sync.WaitGroup) {
 
 			service := new(PingService)
 			curProcessor := processor.GetProcessor(serviceConfig.ProcessorConfig)
-
 			service.Configure(serviceConfig, curProcessor)
 			service.StartMethods(wg)
 		}

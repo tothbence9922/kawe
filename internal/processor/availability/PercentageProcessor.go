@@ -1,19 +1,22 @@
 package availability
 
 import (
+	"math"
+
 	"github.com/tothbence9922/kawe/internal/aggregator"
 	pingInterfaces "github.com/tothbence9922/kawe/internal/ping/interfaces"
 )
 
 type PercentageProcessor struct {
-	Threshold float32
+	Threshold int
 }
 
 func (ap *PercentageProcessor) ProcessData(result pingInterfaces.IPingResult) {
 
 	processedData := new(PercentageProcessedData)
 	processedData.Result = result
-	processedData.Threshold = float32(ap.Threshold)
+	processedData.Threshold = ap.Threshold
+	processedData.ProcessorType = "PERCENTAGE"
 
 	responses := result.GetResponses()
 	totalCount := 0
@@ -26,8 +29,8 @@ func (ap *PercentageProcessor) ProcessData(result pingInterfaces.IPingResult) {
 		}
 	}
 
-	percentage := ((float32(successCount) / float32(totalCount)) * float32(100))
-	processedData.Percentage = percentage
+	percentage := float64(((float64(successCount) / float64(totalCount)) * float64(100)))
+	processedData.Percentage = int(int64(math.Floor(percentage)))
 
 	processedData.Available = false
 	if processedData.Threshold <= processedData.Percentage {
