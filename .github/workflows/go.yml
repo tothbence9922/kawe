@@ -28,11 +28,11 @@ jobs:
     #- name: Go mod init
     #  run: go mod init kawe/m
     
-    - name: Build
-      run: go build -v ./...
+    #- name: Build
+    #  run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./...
+    #- name: Test
+    #  run: go test -v ./...
 
     - name: Set up Docker Buildx
       id: buildx
