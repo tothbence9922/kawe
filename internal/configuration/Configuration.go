@@ -2,11 +2,14 @@ package configuration
 
 import (
 	"encoding/json"
+	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/go-co-op/gocron"
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/tothbence9922/kawe/internal/aggregator"
 	configTypes "github.com/tothbence9922/kawe/internal/configuration/types"
 	"github.com/tothbence9922/kawe/internal/utils"
 )
@@ -33,7 +36,13 @@ func GetInstance() *Configuration {
 }
 
 func (cfg *Configuration) getTargets(clientSet *kubernetes.Clientset) {
-	cfg.EndpointConfigs = configTypes.EndpointConfiguration{Namespaces: utils.GetNameSpaceConfigs(clientSet)}
+	fmt.Println("Getting Targets")
+	newConfig := configTypes.EndpointConfiguration{Namespaces: utils.GetNameSpaceConfigs(clientSet)}
+	if !reflect.DeepEqual(cfg.EndpointConfigs, newConfig) {
+		fmt.Println("Different targets found!")
+		aggregator.GetInstance().ClearResults()
+		cfg.EndpointConfigs = newConfig
+	}
 }
 
 func (cfg *Configuration) GetConfiguration() {

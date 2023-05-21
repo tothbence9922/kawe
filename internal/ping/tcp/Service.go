@@ -2,6 +2,7 @@ package tcp
 
 import (
 	"fmt"
+	"reflect"
 	"sync"
 	"time"
 
@@ -20,6 +21,7 @@ type PingService struct {
 	Annotations map[string]string
 	Processor   processorInterfaces.IProcessor
 	Result      interfaces.IPingResult
+	KillChannel chan (bool)
 }
 
 func (sps *PingService) GetMethods() []interfaces.IPingMethod {
@@ -41,6 +43,8 @@ func (sps *PingService) Configure(config configTypes.ServiceConfiguration, proce
 	sps.Name = config.Name
 	sps.Annotations = config.Annotations
 	sps.Processor = processor
+	sps.KillChannel = make(chan bool)
+
 	sps.Result = &PingResult{ServiceName: sps.Name, Annotations: config.Annotations, ProcessorType: config.ProcessorConfig.Type, Responses: make(map[string](interfaces.IPingResponse))}
 	for _, pingConfig := range config.Pods {
 		sps.methods = append(sps.methods, PingMethod{Target: fmt.Sprintf("%s:%s", pingConfig.Address, pingConfig.Port), Name: pingConfig.Name, Timeout: pingConfig.Timeout, Periodicity: pingConfig.Periodicity})
@@ -51,36 +55,83 @@ func (sps *PingService) StartMethod(wg *sync.WaitGroup, method interfaces.IPingM
 	wg.Add(1)
 	go func(method interfaces.IPingMethod, processor processorInterfaces.IProcessor) {
 		defer wg.Done()
-		for true {
-			pingResponse, error := method.Ping()
-			if error == nil {
-				sps.Lock()
-				sps.Result.AddResponse(pingResponse)
-				processor.ProcessData(sps.Result)
-				sps.Unlock()
+		for {
+			select {
+			case <-sps.KillChannel:
+				fmt.Println("Killing ", sps.Name)
+				return
+			default:
+				pingResponse, error := method.Ping()
+				if error == nil {
+					sps.Lock()
+					sps.Result.AddResponse(pingResponse)
+					processor.ProcessData(sps.Result)
+					sps.Unlock()
+				}
+				time.Sleep(time.Second * time.Duration(method.GetPeriodicity()))
+				break
 			}
-			time.Sleep(time.Second * time.Duration(method.GetPeriodicity()))
 		}
 	}(method, sps.Processor)
 }
 
 func (sps *PingService) StartMethods(wg *sync.WaitGroup) {
-	for _, method := range sps.methods {
-		sps.StartMethod(wg, method)
+	for _, currentMethod := range sps.methods {
+		go func(method interfaces.IPingMethod) {
+			sps.StartMethod(wg, method)
+		}(currentMethod)
+	}
+}
+
+func killServices(services []*PingService) {
+	fmt.Println("Killing services")
+
+	for _, currentService := range services {
+		go func(service *PingService) {
+			service.KillChannel <- true
+		}(currentService)
 	}
 }
 
 func Start(wg *sync.WaitGroup) {
+	wg.Add(1)
 
-	for _, namespaceConfig := range configuration.GetInstance().EndpointConfigs.Namespaces {
-		for _, serviceConfig := range namespaceConfig.Services {
+	var lastConfig []configTypes.NamespaceConfiguration
 
-			service := new(PingService)
-			curProcessor := processor.GetProcessor(serviceConfig.ProcessorConfig)
-			service.Configure(serviceConfig, curProcessor)
-			service.StartMethods(wg)
+	var services []*PingService
+
+	fmt.Println("Starting Services")
+	go func(wg *sync.WaitGroup) {
+		defer wg.Done()
+
+		for true {
+			fmt.Println("Looking for changes")
+
+			newConfig := configuration.GetInstance().EndpointConfigs.Namespaces
+
+			if !reflect.DeepEqual(lastConfig, newConfig) {
+				fmt.Println("Changes found")
+				lastConfig = newConfig
+				killServices(services)
+
+				for _, namespaceConfig := range newConfig {
+					for _, currentServiceConfig := range namespaceConfig.Services {
+						go func(serviceConfig configTypes.ServiceConfiguration) {
+							service := new(PingService)
+							curProcessor := processor.GetProcessor(serviceConfig.ProcessorConfig)
+							service.Configure(serviceConfig, curProcessor)
+
+							services = append(services, service)
+
+							service.StartMethods(wg)
+						}(currentServiceConfig)
+					}
+				}
+			}
+			time.Sleep(time.Second * time.Duration(10))
 		}
-	}
+	}(wg)
+
 	fmt.Println("Processors started")
 	fmt.Println("Services started")
 }

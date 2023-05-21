@@ -43,6 +43,12 @@ func (a *Aggregator) GetResults() map[string](processorInterfaces.IProcessedData
 	return m
 }
 
+func (a *Aggregator) ClearResults() {
+	fmt.Println("Clearing Results")
+
+	a.Results = make(map[string](processorInterfaces.IProcessedData))
+}
+
 func (a *Aggregator) AddResult(newResult processorInterfaces.IProcessedData) {
 	a.Lock()
 	defer a.Unlock()

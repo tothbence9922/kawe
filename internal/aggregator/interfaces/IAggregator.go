@@ -5,4 +5,5 @@ import processorInterfaces "github.com/tothbence9922/kawe/internal/processor/int
 type IAggregator interface {
 	GetResults() processorInterfaces.IProcessedData
 	AddResult(processorInterfaces.IProcessedData)
+	ClearResults()
 }
