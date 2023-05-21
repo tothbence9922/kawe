@@ -1,3 +1,41 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    kubernetes.io/metadata.name: kawe
+  name: kawe
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kawe-account
+  namespace: kawe
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: kawe
+  name: kawe-resource-reader
+rules:
+- apiGroups: [""]
+  resources: ["services", "pods", "namespaces", "endpoints"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kawe-resource-reader
+subjects:
+  - kind: ServiceAccount
+    # Reference to ServiceAccount kind's `metadata.name`
+    name: kawe-account
+    # Reference to ServiceAccount kind's `metadata.namespace`
+    namespace: kawe
+roleRef:
+  kind: ClusterRole
+  name: kawe-resource-reader
+  apiGroup: rbac.authorization.k8s.io
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,7 +43,7 @@ metadata:
   labels:
     app: kawe
   name: kawe
-  namespace: qdak
+  namespace: kawe
 spec:
   replicas: 1
   selector:
@@ -29,15 +67,6 @@ spec:
         - containerPort: 80
           name: 80tcp
           protocol: TCP
-        volumeMounts:
-        - mountPath: /app/mnt/config.json
-          name: kawe-cm
-          subPath: config.json
       restartPolicy: Always
       serviceAccount: kawe-account
       serviceAccountName: kawe-account
-      volumes:
-      - configMap:
-          defaultMode: 0777
-          name: kawe-configmap
-        name: kawe-cm

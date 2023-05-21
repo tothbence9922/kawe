@@ -1,20 +1,18 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.18-alpine
+FROM golang:1.20-alpine
 
 WORKDIR /app
 
-COPY go.mod ./
+COPY . .
 # COPY go.sum ./
 # Based on https://github.com/golang/go/issues/31997
 RUN go env -w GO111MODULE=auto
 RUN go mod download
 
-COPY . .
-RUN echo "{}" > /config.json
 
-RUN go build -o /bin/main ./cmd/kawe/main.go
+RUN go build -o /bin/main ./main.go
 
-EXPOSE 8080
+EXPOSE 80
 
 CMD [ "/bin/main" ]
