@@ -37,14 +37,11 @@ func GetClientSet() *kubernetes.Clientset {
 		initFlags()
 	}
 
-	// Authentication - from outside of the cluster
-	if pwd, err := os.Getwd(); err == nil && pwd != "" {
-		// use the current context in kubeconfig
-		config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	// use the current context in kubeconfig
+	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 
-		if err != nil {
-			panic(err.Error())
-		}
+	// Authentication - from outside of the cluster
+	if err == nil {
 
 		// create the clientSet
 		clientSet, err = kubernetes.NewForConfig(config)
@@ -52,6 +49,7 @@ func GetClientSet() *kubernetes.Clientset {
 		if err != nil {
 			panic(err.Error())
 		}
+
 	} else {
 		// Authentication - from inside of the cluster
 		// creates the in-cluster config
