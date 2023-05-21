@@ -25,7 +25,7 @@ func (ps *PrometheusServer) CalcMetrics() {
 	ag := aggregator.GetInstance()
 	ag.Lock()
 	defer ag.Unlock()
-	processedData := ag.Results
+	processedData := ag.GetResults()
 	if processedData != nil {
 		for key, value := range processedData {
 			if ps.Metrics[key] == nil {

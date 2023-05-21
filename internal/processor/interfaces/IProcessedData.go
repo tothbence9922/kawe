@@ -5,7 +5,7 @@ type IProcessedData interface {
 	Json() string
 	GetServiceName() string
 	GetAvailability() bool
+	GetProcessorType() string
 	GetThreshold() int
 	GetValue() int
-	GetProcessorType() string
 }

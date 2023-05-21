@@ -19,8 +19,6 @@ type HttpServer struct {
 func getQueriedServices(nameParam string, statusParam string) (map[string](processorInterfaces.IProcessedData), error) {
 
 	ag := aggregator.GetInstance()
-	ag.Lock()
-	defer ag.Unlock()
 
 	results := make(map[string](processorInterfaces.IProcessedData))
 
@@ -37,7 +35,7 @@ func getQueriedServices(nameParam string, statusParam string) (map[string](proce
 
 	nameQueried := (nameParam != "")
 
-	for service, result := range ag.Results {
+	for service, result := range ag.GetResults() {
 		// Filter for name
 		if nameQueried {
 			if nameParam == service {
@@ -65,16 +63,15 @@ func getQueriedServices(nameParam string, statusParam string) (map[string](proce
 			}
 		}
 	}
+
 	return results, nil
 }
 
 func handleQueryServices(req *http.Request) ([]byte, error) {
-
 	statusQuery := req.URL.Query().Get("status")
 	nameQuery := req.URL.Query().Get("name")
 
 	results, err := getQueriedServices(nameQuery, statusQuery)
-
 	if err != nil {
 		return []byte(err.Error()), err
 	}

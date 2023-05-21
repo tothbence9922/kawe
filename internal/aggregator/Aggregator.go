@@ -20,10 +20,11 @@ var (
 )
 
 func GetInstance() *Aggregator {
-	initLock.Lock()
-	defer initLock.Unlock()
 
 	if aggregatorInstance == nil {
+		initLock.Lock()
+		defer initLock.Unlock()
+
 		aggregatorInstance = new(Aggregator)
 
 		aggregatorInstance.Channel = make(chan processorInterfaces.IProcessedData)
@@ -35,8 +36,6 @@ func GetInstance() *Aggregator {
 
 func (a *Aggregator) GetResults() map[string](processorInterfaces.IProcessedData) {
 
-	a.Lock()
-	defer a.Unlock()
 	m := make(map[string](processorInterfaces.IProcessedData), len(a.Results))
 	for k, v := range a.Results {
 		m[k] = v
