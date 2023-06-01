@@ -70,3 +70,42 @@ spec:
       restartPolicy: Always
       serviceAccount: kawe-account
       serviceAccountName: kawe-account
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kawe.periodicity: "5000"
+    kawe.processor.threshold: "50"
+    kawe.processor.type: percentage
+  name: kawe-service
+  namespace: kawe
+spec:
+  ports:
+  - name: tcp80
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: kawe
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+  name: kawe-ingress
+  namespace: kawe
+spec:
+  rules:
+  - host: kawe.datatronic.hu
+    http:
+      paths:
+      - backend:
+          service:
+            name: kawe-service
+            port:
+              number: 80
+        path: /api/v1/services
+        pathType: Prefix
+---
