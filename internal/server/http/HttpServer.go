@@ -16,11 +16,22 @@ type HttpServer struct {
 	Port int
 }
 
-func getQueriedServices(nameParam string, statusParam string) (map[string](processorInterfaces.IProcessedData), error) {
+func getQueriedServices(nameParam string, statusParam string, labelParam string) (map[string](processorInterfaces.IProcessedData), error) {
 
 	ag := aggregator.GetInstance()
 
 	results := make(map[string](processorInterfaces.IProcessedData))
+
+	labelQueried := (labelParam != "")
+
+	if labelQueried {
+		for service, result := range ag.GetResults() {
+			if labelParam == result.GetServiceLabel() {
+				results[service] = result
+			}
+		}
+		return results, nil
+	}
 
 	statusQueried := (statusParam != "")
 	var status bool
@@ -70,8 +81,8 @@ func getQueriedServices(nameParam string, statusParam string) (map[string](proce
 func handleQueryServices(req *http.Request) ([]byte, error) {
 	statusQuery := req.URL.Query().Get("status")
 	nameQuery := req.URL.Query().Get("name")
-
-	results, err := getQueriedServices(nameQuery, statusQuery)
+	labelQuery := req.URL.Query().Get("label")
+	results, err := getQueriedServices(nameQuery, statusQuery, labelQuery)
 	if err != nil {
 		return []byte(err.Error()), err
 	}

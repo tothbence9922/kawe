@@ -45,7 +45,7 @@ func (sps *PingService) Configure(config configTypes.ServiceConfiguration, proce
 	sps.Processor = processor
 	sps.KillChannel = make(chan bool)
 
-	sps.Result = &PingResult{ServiceName: sps.Name, Annotations: config.Annotations, ProcessorType: config.ProcessorConfig.Type, Responses: make(map[string](interfaces.IPingResponse))}
+	sps.Result = &PingResult{ServiceName: sps.Name, ServiceLabel: config.ServiceLabel, Annotations: config.Annotations, ProcessorType: config.ProcessorConfig.Type, Responses: make(map[string](interfaces.IPingResponse))}
 	for _, pingConfig := range config.Pods {
 		sps.methods = append(sps.methods, PingMethod{Target: fmt.Sprintf("%s:%s", pingConfig.Address, pingConfig.Port), Name: pingConfig.Name, Timeout: pingConfig.Timeout, Periodicity: pingConfig.Periodicity})
 	}

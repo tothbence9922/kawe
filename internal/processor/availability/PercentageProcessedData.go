@@ -33,6 +33,12 @@ func (pd *PercentageProcessedData) GetServiceName() string {
 
 	return pd.Result.GetServiceName()
 }
+
+func (pd *PercentageProcessedData) GetServiceLabel() string {
+
+	return pd.Result.GetServiceLabel()
+}
+
 func (pd *PercentageProcessedData) GetProcessorType() string {
 
 	return pd.ProcessorType
