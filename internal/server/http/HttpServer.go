@@ -16,22 +16,33 @@ type HttpServer struct {
 	Port int
 }
 
-func getQueriedServices(nameParam string, statusParam string, labelParam string) (map[string](processorInterfaces.IProcessedData), error) {
+type LabelQueryResponse struct {
+	Results   map[string](processorInterfaces.IProcessedData)
+	Available bool
+}
 
-	ag := aggregator.GetInstance()
+func getLabelQueriedServices(labelParam string, aggregatorResults map[string]processorInterfaces.IProcessedData) (*LabelQueryResponse, error) {
 
 	results := make(map[string](processorInterfaces.IProcessedData))
 
-	labelQueried := (labelParam != "")
+	available := true
+	for service, result := range aggregatorResults {
+		if labelParam == result.GetServiceLabel() {
+			results[service] = result
 
-	if labelQueried {
-		for service, result := range ag.GetResults() {
-			if labelParam == result.GetServiceLabel() {
-				results[service] = result
+			if result.GetAvailability() == false {
+				available = false
+
 			}
 		}
-		return results, nil
 	}
+
+	return &LabelQueryResponse{Results: results, Available: available}, nil
+}
+
+func getQueriedServices(nameParam string, statusParam string, aggregatorResults map[string]processorInterfaces.IProcessedData) (map[string](processorInterfaces.IProcessedData), error) {
+
+	results := make(map[string](processorInterfaces.IProcessedData))
 
 	statusQueried := (statusParam != "")
 	var status bool
@@ -46,7 +57,7 @@ func getQueriedServices(nameParam string, statusParam string, labelParam string)
 
 	nameQueried := (nameParam != "")
 
-	for service, result := range ag.GetResults() {
+	for service, result := range aggregatorResults {
 		// Filter for name
 		if nameQueried {
 			if nameParam == service {
@@ -82,12 +93,29 @@ func handleQueryServices(req *http.Request) ([]byte, error) {
 	statusQuery := req.URL.Query().Get("status")
 	nameQuery := req.URL.Query().Get("name")
 	labelQuery := req.URL.Query().Get("label")
-	results, err := getQueriedServices(nameQuery, statusQuery, labelQuery)
-	if err != nil {
-		return []byte(err.Error()), err
-	}
+	labelQueried := (labelQuery != "")
 
-	return json.Marshal(results)
+	aggregatorResults := aggregator.GetInstance().GetResults()
+
+	if len(aggregatorResults) != 0 {
+		if labelQueried {
+			results, err := getLabelQueriedServices(labelQuery, aggregatorResults)
+			if err != nil {
+				return []byte(err.Error()), err
+			}
+
+			return json.Marshal(results)
+		} else {
+			results, err := getQueriedServices(nameQuery, statusQuery, aggregatorResults)
+			if err != nil {
+				return []byte(err.Error()), err
+			}
+
+			return json.Marshal(results)
+		}
+	} else {
+		return json.Marshal(make(map[string]processorInterfaces.IProcessedData))
+	}
 }
 
 func handleGetServices(w http.ResponseWriter, req *http.Request) {
