@@ -10,7 +10,7 @@ RUN go mod download
 RUN go build -o /bin/main ./main.go
 
 FROM alpine:latest
-RUN useradd -u 2222 kawe
+RUN adduser -u 2222 -D kawe
 
 WORKDIR /
 
