@@ -134,6 +134,14 @@ func GetServiceConfigurations(clientSet *kubernetes.Clientset, namespace v1.Name
 
 		podConfigurations := GetPodConfigurations(clientSet, namespace, service)
 
+		serviceLabel := ""
+
+		serviceLabelAnnotation, serviceLabelFound := serviceAnnotations["kawe.label"]
+
+		if serviceLabelFound {
+			serviceLabel = serviceLabelAnnotation
+		}
+
 		processorType := "PERCENTAGE"
 
 		processorTypeAnnotation, processorTypeFound := serviceAnnotations["kawe.processor.type"]
@@ -155,7 +163,7 @@ func GetServiceConfigurations(clientSet *kubernetes.Clientset, namespace v1.Name
 
 		processorConfiguration := configTypes.ProcessorConfiguration{Type: processorType, Threshold: threshold}
 
-		serviceConfigurations = append(serviceConfigurations, configTypes.ServiceConfiguration{Name: serviceName, Annotations: serviceAnnotations, Pods: podConfigurations, ProcessorConfig: processorConfiguration})
+		serviceConfigurations = append(serviceConfigurations, configTypes.ServiceConfiguration{Name: serviceName, ServiceLabel: serviceLabel, Annotations: serviceAnnotations, Pods: podConfigurations, ProcessorConfig: processorConfiguration})
 	}
 
 	return serviceConfigurations

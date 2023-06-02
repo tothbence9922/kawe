@@ -12,6 +12,7 @@ type PingResult struct {
 	sync.RWMutex
 	Responses     map[string](interfaces.IPingResponse)
 	ServiceName   string
+	ServiceLabel  string
 	Annotations   map[string]string
 	ProcessorType string
 }
@@ -47,6 +48,11 @@ func (spr *PingResult) AddResponse(newResponse interfaces.IPingResponse) {
 
 func (spr *PingResult) GetServiceName() string {
 	ret := spr.ServiceName
+	return ret
+}
+
+func (spr *PingResult) GetServiceLabel() string {
+	ret := spr.ServiceLabel
 	return ret
 }
 

@@ -16,9 +16,31 @@ type HttpServer struct {
 	Port int
 }
 
-func getQueriedServices(nameParam string, statusParam string) (map[string](processorInterfaces.IProcessedData), error) {
+type LabelQueryResponse struct {
+	Results   map[string](processorInterfaces.IProcessedData)
+	Available bool
+}
 
-	ag := aggregator.GetInstance()
+func getLabelQueriedServices(labelParam string, aggregatorResults map[string]processorInterfaces.IProcessedData) (*LabelQueryResponse, error) {
+
+	results := make(map[string](processorInterfaces.IProcessedData))
+
+	available := true
+	for service, result := range aggregatorResults {
+		if labelParam == result.GetServiceLabel() {
+			results[service] = result
+
+			if result.GetAvailability() == false {
+				available = false
+
+			}
+		}
+	}
+
+	return &LabelQueryResponse{Results: results, Available: available}, nil
+}
+
+func getQueriedServices(nameParam string, statusParam string, aggregatorResults map[string]processorInterfaces.IProcessedData) (map[string](processorInterfaces.IProcessedData), error) {
 
 	results := make(map[string](processorInterfaces.IProcessedData))
 
@@ -35,7 +57,7 @@ func getQueriedServices(nameParam string, statusParam string) (map[string](proce
 
 	nameQueried := (nameParam != "")
 
-	for service, result := range ag.GetResults() {
+	for service, result := range aggregatorResults {
 		// Filter for name
 		if nameQueried {
 			if nameParam == service {
@@ -70,13 +92,30 @@ func getQueriedServices(nameParam string, statusParam string) (map[string](proce
 func handleQueryServices(req *http.Request) ([]byte, error) {
 	statusQuery := req.URL.Query().Get("status")
 	nameQuery := req.URL.Query().Get("name")
+	labelQuery := req.URL.Query().Get("label")
+	labelQueried := (labelQuery != "")
 
-	results, err := getQueriedServices(nameQuery, statusQuery)
-	if err != nil {
-		return []byte(err.Error()), err
+	aggregatorResults := aggregator.GetInstance().GetResults()
+
+	if len(aggregatorResults) != 0 {
+		if labelQueried {
+			results, err := getLabelQueriedServices(labelQuery, aggregatorResults)
+			if err != nil {
+				return []byte(err.Error()), err
+			}
+
+			return json.Marshal(results)
+		} else {
+			results, err := getQueriedServices(nameQuery, statusQuery, aggregatorResults)
+			if err != nil {
+				return []byte(err.Error()), err
+			}
+
+			return json.Marshal(results)
+		}
+	} else {
+		return json.Marshal(make(map[string]processorInterfaces.IProcessedData))
 	}
-
-	return json.Marshal(results)
 }
 
 func handleGetServices(w http.ResponseWriter, req *http.Request) {

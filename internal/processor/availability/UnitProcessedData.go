@@ -39,6 +39,11 @@ func (pd *UnitProcessedData) GetServiceName() string {
 	return pd.Result.GetServiceName()
 }
 
+func (pd *UnitProcessedData) GetServiceLabel() string {
+
+	return pd.Result.GetServiceLabel()
+}
+
 func (pd *UnitProcessedData) String() string {
 
 	ret := ""
